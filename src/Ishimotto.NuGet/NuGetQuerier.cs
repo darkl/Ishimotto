@@ -30,6 +30,18 @@ namespace Ishimotto.NuGet
             return new NuGetFetcher(query, pageSize, timeout);
         }
 
+
+        public IEnumerable<V2FeedPackage> FetchEverything(int pageSize, TimeSpan timeout)
+        {
+            var query =
+                from package in mFeedContext.Packages
+                where package.IsLatestVersion && package.Dependencies.Length > 0
+                orderby package.DownloadCount descending 
+                select package;
+
+            return new NuGetFetcher(query, pageSize, timeout);
+        }
+
         public IEnumerable<V2FeedPackage> FetchBetween(DateTime startTime, int pageSize = 40)
         {
             return FetchFrom(startTime, pageSize, TimeSpan.FromSeconds(10));
@@ -45,6 +57,23 @@ namespace Ishimotto.NuGet
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);
+        }
+
+        public IEnumerable<V2FeedPackage> FetchAll(HashSet<string> dependencies, int pageSize, TimeSpan timeout)
+        {
+            foreach (string dependency in dependencies)
+            {
+                var query =
+                    from package in mFeedContext.Packages
+                    where !package.IsPrerelease &&
+                          package.Id == dependency
+                    select package;
+
+                foreach (V2FeedPackage v2FeedPackage in new NuGetFetcher(query, pageSize, timeout))
+                {
+                    yield return v2FeedPackage;
+                }
+            }
         }
     }
 }

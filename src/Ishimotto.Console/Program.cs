@@ -1,56 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using Ishimotto.Core.DownloadStatus;
+using System.IO;
+using System.Linq;
 using Ishimotto.NuGet;
 using Ishimotto.NuGet.NuGetGallery;
 
 namespace Ishimotto.Console
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             NuGetQuerier querier = new NuGetQuerier();
 
-            NuGetDownloader downloader =
-                new NuGetDownloader(querier.FetchFrom(TimeSpan.FromDays(1)),
-                                    "nupkgs",
-                                    30,
-                                    0);
+            var result =
+                querier.FetchEverything(40, TimeSpan.FromSeconds(10));
 
-            IObservable<DownloadStatus<V2FeedPackage>> listener =
-                downloader.Download();
-
-            bool done = false;
-
-            listener.Subscribe(x => HandleMessage((dynamic)x),
-                               () =>
-                                   {
-                                       done = true;
-                                       System.Console.WriteLine("Done!");
-                                   });
-
-            while (!done)
+            foreach (V2FeedPackage package in result.Take(5))
             {
-                System.Console.ReadLine();
+                File.WriteAllText(Guid.NewGuid() + ".txt",
+                                  FormatPackage(package));
             }
         }
 
-        private static void HandleMessage(DownloadStarted<V2FeedPackage> message)
+        public static string FormatPackage(V2FeedPackage package)
         {
-            System.Console.WriteLine("Started downloading " + message.Item.Id +
-                                     " from " + message.Url + " to " + message.Destination);
-        }
-
-        private static void HandleMessage(DownloadFailed<V2FeedPackage> message)
-        {
-            System.Console.WriteLine("Failed downloading " + message.Item.Id +
-                                     " error: " + message.Exception + ". Try: " + message.NumberOfRetries);
-        }
-
-        private static void HandleMessage(DownloadComplete<V2FeedPackage> message)
-        {
-            System.Console.WriteLine("Finished downloading " + message.Item.Id);
+            return "Id:" + package.Id + Environment.NewLine +
+                   "Title: " + package.Title + Environment.NewLine +
+                   "DownloadCount:" + package.DownloadCount + Environment.NewLine +
+                   "Authors: " + package.Authors + Environment.NewLine +
+                   "Version: " + package.Version + Environment.NewLine +
+                   "Dependencies: " + package.Dependencies + Environment.NewLine +
+                   "Tags:" + package.Tags;
         }
     }
 }

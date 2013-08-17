@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 // Original file name:
-// Generation date: 11/02/2013 22:21:15
+// Generation date: 19/03/2013 22:42:19
 namespace Ishimotto.NuGet.NuGetGallery
 {
     
@@ -749,6 +749,28 @@ namespace Ishimotto.NuGet.NuGetGallery
         private int _VersionDownloadCount;
         partial void OnVersionDownloadCountChanging(int value);
         partial void OnVersionDownloadCountChanged();
+        /// <summary>
+        /// There are no comments for Property MinClientVersion in the schema.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        public string MinClientVersion
+        {
+            get
+            {
+                return this._MinClientVersion;
+            }
+            set
+            {
+                this.OnMinClientVersionChanging(value);
+                this._MinClientVersion = value;
+                this.OnMinClientVersionChanged();
+                this.OnPropertyChanged("MinClientVersion");
+            }
+        }
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        private string _MinClientVersion;
+        partial void OnMinClientVersionChanging(string value);
+        partial void OnMinClientVersionChanged();
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
         public event global::System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
