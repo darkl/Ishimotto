@@ -7,7 +7,7 @@ namespace Ishimotto.NuGet
 {
     public class NuGetQuerier
     {
-        private readonly FeedContext_x0060_1 mFeedContext = new FeedContext_x0060_1(new Uri("http://www.nuget.org/api/v2/"));
+        private readonly V2FeedContext mFeedContext = new V2FeedContext(new Uri("http://www.nuget.org/api/v2/"));
 
         public IEnumerable<V2FeedPackage> FetchFrom(TimeSpan timespan, int pageSize = 40)
         {

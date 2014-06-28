@@ -53,10 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AriaDownloader.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadStatus\DownloadComplete.cs" />
     <Compile Include="DownloadStatus\DownloadFailed.cs" />
     <Compile Include="DownloadStatus\DownloadStatus.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="PendingDownload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
