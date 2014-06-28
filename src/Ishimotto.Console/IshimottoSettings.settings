@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Ishimotto.Console" GeneratedClassName="IshimottoSettings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DownloadDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Nugets</Value>
+    </Setting>
+    <Setting Name="DeleteTempFile" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AriaLogPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Nugets\AriaLog</Value>
+    </Setting>
+    <Setting Name="AriaLogLevel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ERROR</Value>
+    </Setting>
+    <Setting Name="MaxConnections" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

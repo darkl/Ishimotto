@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Ishimotto.Core;
 using Ishimotto.NuGet;
 using Ishimotto.NuGet.NuGetGallery;
 
@@ -15,11 +16,34 @@ namespace Ishimotto.Console
             var result =
                 querier.FetchEverything(40, TimeSpan.FromSeconds(10));
 
-            foreach (V2FeedPackage package in result.Take(5))
+
+            var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
+
+            var ishimottoSettings = IshimottoSettings.Default;
+
+
+            AriaSeverity severity;
+
+
+            if (!AriaSeverity.TryParse(ishimottoSettings.AriaLogLevel, out severity))
             {
-                File.WriteAllText(Guid.NewGuid() + ".txt",
-                                  FormatPackage(package));
+                //TODO: log that the severity would be set to error
+
+                severity = AriaSeverity.Error;
+                
             }
+
+            AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadDirectory,ishimottoSettings.DeleteTempFile,ishimottoSettings.MaxConnections,ishimottoSettings.AriaLogPath,severity);
+
+
+            downloader.Download(links);
+
+
+            //foreach (V2FeedPackage package in result.Take(5))
+            //{
+            //    File.WriteAllText(Guid.NewGuid() + ".txt",
+            //                      FormatPackage(package));
+            //}
         }
 
         public static string FormatPackage(V2FeedPackage package)
@@ -32,5 +56,7 @@ namespace Ishimotto.Console
                    "Dependencies: " + package.Dependencies + Environment.NewLine +
                    "Tags:" + package.Tags;
         }
+
+   
     }
 }
