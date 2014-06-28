@@ -21,7 +21,7 @@ namespace Ishimotto.NuGet
 
         public static string GetUri(string galleryUrl)
         {
-            return galleryUrl.Replace("http://nuget.org/packages/", "http://nuget.org/api/v2/package/");
+            return galleryUrl.Replace("http://www.nuget.org/packages/", "http://nuget.org/api/v2/package/");
         }
 
         protected override string GetDownloadLink(V2FeedPackage item)

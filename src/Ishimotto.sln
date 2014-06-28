@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishimotto.NuGet", "Ishimotto.NuGet\Ishimotto.NuGet.csproj", "{1DB1D0F0-370E-477E-8FEC-9D47237578DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishimotto.Console", "Ishimotto.Console\Ishimotto.Console.csproj", "{9BD681A2-23AC-4A08-AE47-B85D41A66808}"
@@ -13,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9E8C16
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishimotto.Tests", "Ishimotto.Tests\Ishimotto.Tests.csproj", "{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,10 @@ Global
 		{A1832391-92A3-4E4B-85A1-1F34C6BF2508}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1832391-92A3-4E4B-85A1-1F34C6BF2508}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1832391-92A3-4E4B-85A1-1F34C6BF2508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,7 +7,13 @@ namespace Ishimotto.NuGet
 {
     public class NuGetQuerier
     {
-        private readonly FeedContext_x0060_1 mFeedContext = new FeedContext_x0060_1(new Uri("http://www.nuget.org/api/v2/"));
+        private readonly V2FeedContext mFeedContext;
+
+
+        public NuGetQuerier(string NuGetUrl)
+        {
+            mFeedContext = new V2FeedContext(new Uri(NuGetUrl));
+        }
 
         public IEnumerable<V2FeedPackage> FetchFrom(TimeSpan timespan, int pageSize = 40)
         {
@@ -24,13 +30,12 @@ namespace Ishimotto.NuGet
             var query =
                 from package in mFeedContext.Packages
                 where package.Published >= startTime &&
-                      !package.IsPrerelease
+                      !package.IsPrerelease && package.IsLatestVersion
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);
         }
-
-
+        
         public IEnumerable<V2FeedPackage> FetchEverything(int pageSize, TimeSpan timeout)
         {
             var query =

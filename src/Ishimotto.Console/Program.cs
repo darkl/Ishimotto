@@ -1,36 +1,92 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
+using Ishimotto.Core;
 using Ishimotto.NuGet;
 using Ishimotto.NuGet.NuGetGallery;
+using log4net;
+using log4net.Config;
+
 
 namespace Ishimotto.Console
 {
+   
     internal class Program
     {
+        private static ILog logger;
+
         private static void Main(string[] args)
         {
-            NuGetQuerier querier = new NuGetQuerier();
+
+            XmlConfigurator.Configure();
+
+            logger = LogManager.GetLogger("Ishimotto.Console.Program");
+
+            AppDomain.CurrentDomain.UnhandledException += LogUnhandledException;
+            
+            if (logger.IsDebugEnabled)
+            {
+                logger.Debug("Start Ishimotto process");
+            }
+
+            var ishimottoSettings = IshimottoConfig.GetConfig();
+
+
+
+            NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
+
+
+            if (logger.IsInfoEnabled)
+            {
+                logger.Info("quering NuGet to get packages inforamtion");
+            }
 
             var result =
-                querier.FetchEverything(40, TimeSpan.FromSeconds(10));
+                querier.FetchFrom(ishimottoSettings.LastFetchTime);
 
-            foreach (V2FeedPackage package in result.Take(5))
+
+            var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl)).ToList();
+
+            if (logger.IsInfoEnabled)
             {
-                File.WriteAllText(Guid.NewGuid() + ".txt",
-                                  FormatPackage(package));
+                logger.InfoFormat("{0} packages returned", links.Count());
             }
+
+
+            if (logger.IsInfoEnabled)
+            {
+                logger.Info("Start downloading packages");
+            }
+
+            AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadsDirectory, ishimottoSettings.DeleteTempFiles, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath, ishimottoSettings.AriaLogLevel);
+
+
+            downloader.Download(links);
+
+            if (logger.IsDebugEnabled)
+            {
+                logger.Debug("Finish isimotto process");
+            }
+
+
+            ishimottoSettings.LastFetchTime = DateTime.Now;
+
         }
 
-        public static string FormatPackage(V2FeedPackage package)
+        /// <summary>
+        /// Logging the exception before terminating the program
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void LogUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            return "Id:" + package.Id + Environment.NewLine +
-                   "Title: " + package.Title + Environment.NewLine +
-                   "DownloadCount:" + package.DownloadCount + Environment.NewLine +
-                   "Authors: " + package.Authors + Environment.NewLine +
-                   "Version: " + package.Version + Environment.NewLine +
-                   "Dependencies: " + package.Dependencies + Environment.NewLine +
-                   "Tags:" + package.Tags;
+            logger.Fatal("An unhandled exception occured",e.ExceptionObject as Exception);
         }
+        
+
+
     }
 }
