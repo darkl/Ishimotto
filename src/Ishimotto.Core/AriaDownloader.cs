@@ -31,6 +31,8 @@ namespace Ishimotto.Core
     {
 
 
+        private const string ARIA_EXE = "aria2c.exe";
+
         #region Properties
 
         /// <summary>
@@ -137,7 +139,9 @@ namespace Ishimotto.Core
                 throw new ArgumentException("The urls argument can not be null");
             }
 
-            CreateLinkFiles(urls);
+            var paths = CreateLinkFiles(urls);
+
+            Parallel.ForEach(paths, DownloadFromFile);
         }
 
 
@@ -150,14 +154,23 @@ namespace Ishimotto.Core
         /// Create files contains all the urls for Atia to download
         /// </summary>
         /// <param name="urls">The urls to insert to the files</param>
-        private void CreateLinkFiles(IEnumerable<string> urls)
+        /// <returns>collection of all created link files</returns>
+        private IEnumerable<string> CreateLinkFiles(IEnumerable<string> urls)
         {
+
+            IEnumerable<string> filePaths;
+
+
+            //TODO: Test what happen if the file links1.txt already exist
+
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", 1, "txt"))
             {
                 fileWriter.WriteToFiles(urls);
 
-                Parallel.ForEach(fileWriter.FilesPaths, DownloadFromFile);
+                filePaths = fileWriter.FilesPath;
             }
+
+            return filePaths;
         }
 
         /// <summary>
@@ -214,7 +227,7 @@ namespace Ishimotto.Core
 
             processStartInfo.UseShellExecute = true;
             processStartInfo.CreateNoWindow = true;
-            processStartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria2c.exe");
+            processStartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ARIA_EXE);
 
             processStartInfo.Arguments = arguments;
             return processStartInfo;

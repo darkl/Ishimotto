@@ -31,7 +31,7 @@ namespace Ishimotto.Core
         /// <summary>
         /// Collection of all the paths creates by the <see cref="FileWriter"/>
         /// </summary>
-        private List<string> mFilesesPaths;
+        private List<string> mFilesesPath;
 
         /// <summary>
         /// The name of the file to create
@@ -41,9 +41,9 @@ namespace Ishimotto.Core
 
         #region Properties
         /// <summary>
-        /// <see cref="mFilesesPaths"/>
+        /// <see cref="mFilesesPath"/>
         /// </summary>
-        public IEnumerable<string> FilesPaths { get { return mFilesesPaths; } }
+        public IEnumerable<string> FilesPath { get { return mFilesesPath; } }
 
         /// <summary>
         /// The extension of the document to create
@@ -79,7 +79,7 @@ namespace Ishimotto.Core
             mFileName = fileName;
             Extension = extension;
 
-            mFilesesPaths = new List<string>(GetFilePaths(numOfFiles));
+            mFilesesPath = new List<string>(GetFilePaths(numOfFiles));
 
             mWriters = new StreamWriter[numOfFiles];
 
@@ -104,7 +104,7 @@ namespace Ishimotto.Core
 
         #region Public Methods
         /// <summary>
-        /// Write texts to <see cref="FilesPaths"/>, adding perfix and suffix if exists
+        /// Write texts to <see cref="FilesPath"/>, adding perfix and suffix if exists
         /// </summary>
         /// <param name="lines">Lines to write</param>
         public async Task WriteToFiles(IEnumerable<string> lines)
@@ -186,7 +186,7 @@ namespace Ishimotto.Core
         }
 
         /// <summary>
-        /// Initialize the streams to write to <see cref="FilesPaths"/>
+        /// Initialize the streams to write to <see cref="FilesPath"/>
         /// </summary>
         private void InitializeWriters()
         {
@@ -195,7 +195,7 @@ namespace Ishimotto.Core
             for (int writerPosition = 0; writerPosition < mWriters.Length; writerPosition++)
             {
 
-                mWriters[writerPosition] = new StreamWriter(mFilesesPaths[writerPosition], false);
+                mWriters[writerPosition] = new StreamWriter(mFilesesPath[writerPosition], false);
 
             }
 
