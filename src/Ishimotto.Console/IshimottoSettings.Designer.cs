@@ -82,5 +82,17 @@ namespace Ishimotto.Console {
                 this["MaxConnections"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"Logger.Config\"")]
+        public string LoggerFileName {
+            get {
+                return ((string)(this["LoggerFileName"]));
+            }
+            set {
+                this["LoggerFileName"] = value;
+            }
+        }
     }
 }

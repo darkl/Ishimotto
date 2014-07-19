@@ -1,17 +1,41 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Ishimotto.Core;
 using Ishimotto.NuGet;
 using Ishimotto.NuGet.NuGetGallery;
+using log4net;
+using log4net.Config;
+
 
 namespace Ishimotto.Console
 {
+   
     internal class Program
     {
+        private static ILog logger;
+
         private static void Main(string[] args)
         {
+
+            XmlConfigurator.ConfigureAndWatch(new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,IshimottoSettings.Default.LoggerFileName)));
+
+
+            logger  = LogManager.GetLogger("Ishimotto.Console.Program");
+
+            if (logger.IsDebugEnabled)
+            {
+                logger.Debug("Start Ishimotto process");
+            }
+
             NuGetQuerier querier = new NuGetQuerier();
+
+
+            if (logger.IsInfoEnabled)
+            {
+                logger.Info("quering NuGet to get packages inforamtion");
+            }
 
             var result =
                 querier.FetchEverything(40, TimeSpan.FromSeconds(10));
@@ -19,44 +43,90 @@ namespace Ishimotto.Console
 
             var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
 
-            var ishimottoSettings = IshimottoSettings.Default;
-
-
-            AriaSeverity severity;
-
-
-            if (!AriaSeverity.TryParse(ishimottoSettings.AriaLogLevel, out severity))
+            if (logger.IsInfoEnabled)
             {
-                //TODO: log that the severity would be set to error
-
-                severity = AriaSeverity.Error;
-                
+                logger.InfoFormat("{0} packages returned", links.Count());
             }
 
-            AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadDirectory,ishimottoSettings.DeleteTempFile,ishimottoSettings.MaxConnections,ishimottoSettings.AriaLogPath,severity);
+            var severity = GetAriaSeverity();
+
+            var ishimottoSettings = IshimottoSettings.Default;
+
+            if (logger.IsInfoEnabled)
+            {
+                logger.Info("Start downloading packages");
+            }
+
+            AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadDirectory, ishimottoSettings.DeleteTempFile, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath, severity);
 
 
             downloader.Download(links);
 
+            if (logger.IsDebugEnabled)
+            {
+                logger.Debug("Finish isimotto process");
+            }
 
-            //foreach (V2FeedPackage package in result.Take(5))
-            //{
-            //    File.WriteAllText(Guid.NewGuid() + ".txt",
-            //                      FormatPackage(package));
-            //}
+
         }
 
-        public static string FormatPackage(V2FeedPackage package)
+        /// <summary>
+        /// Get AriaSeverity from the configuration
+        /// </summary>
+        /// <returns><see cref="AriaSeverity"/></returns>
+        private static AriaSeverity GetAriaSeverity()
         {
-            return "Id:" + package.Id + Environment.NewLine +
-                   "Title: " + package.Title + Environment.NewLine +
-                   "DownloadCount:" + package.DownloadCount + Environment.NewLine +
-                   "Authors: " + package.Authors + Environment.NewLine +
-                   "Version: " + package.Version + Environment.NewLine +
-                   "Dependencies: " + package.Dependencies + Environment.NewLine +
-                   "Tags:" + package.Tags;
+
+            if (logger.IsDebugEnabled)
+            {
+                logger.Debug("Choosing AriaSeverity");
+            }
+
+            AriaSeverity severity;
+
+            var ishimottoSettings = IshimottoSettings.Default;
+
+            if (!AriaSeverity.TryParse(ishimottoSettings.AriaLogLevel, out severity))
+            {
+                if (logger.IsWarnEnabled)
+                {
+                    LogAriaSeverityWarning();
+                }
+
+                severity = AriaSeverity.Error;
+            }
+            return severity;
         }
 
-   
+        /// <summary>
+        /// Logs that the AriaSeverity parameter can not be parsed and the ERROR level would be taken
+        /// </summary>
+        private static void LogAriaSeverityWarning()
+        {
+            StringBuilder warnMessage =
+                new StringBuilder(
+                    "Could not parse AriaSeverity from configuratoin, the AriaSeverity value must be one of the following: \n");
+
+            warnMessage.Append(AriaSeverity.Debug);
+            warnMessage.Append(",");
+
+            warnMessage.Append(AriaSeverity.Info);
+            warnMessage.Append(",");
+
+            warnMessage.Append(AriaSeverity.Notice);
+            warnMessage.Append(",");
+
+            warnMessage.Append(AriaSeverity.Warn);
+            warnMessage.Append(",");
+
+            warnMessage.Append(AriaSeverity.Error);
+            warnMessage.Append(",");
+
+            warnMessage.Append("The level ERROR would be taken to log aria process");
+
+            logger.Warn(warnMessage.ToString());
+        }
+        
+
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 
 namespace Ishimotto.Core
 {
@@ -36,7 +38,10 @@ namespace Ishimotto.Core
         /// <summary>
         /// The name of the file to create
         /// </summary>
-        private string mFileName; 
+        private string mFileName;
+
+        private ILog mLogger;
+
         #endregion
 
         #region Properties
@@ -83,6 +88,8 @@ namespace Ishimotto.Core
 
             mWriters = new StreamWriter[numOfFiles];
 
+            mLogger = LogManager.GetLogger("Ishimotto.Core.FileWriter");
+
         }
 
         /// <summary>
@@ -110,23 +117,44 @@ namespace Ishimotto.Core
         public async Task WriteToFiles(IEnumerable<string> lines)
         {
 
+            if (mLogger.IsDebugEnabled)
+            {
+                mLogger.Debug("Start writing lines to files");
+            }
+
+
             if (!mAreStreamInitialized)
             {
+                if (mLogger.IsDebugEnabled)
+                {
+                    mLogger.Debug("Initalize writers");
+                }
+                
                 InitializeWriters();
             }
 
-            int elementIndex = 0;
+            int lineIndex = 0;
+
+
+            if (mLogger.IsInfoEnabled)
+            {
+                mLogger.InfoFormat("Start writing {0} lines to {1} files",lines.Count(),mWriters.Length);
+            }
 
             await Task.Factory.StartNew(() =>
                 {
                     foreach (var text in lines)
                     {
                         var line = String.Concat(Perfix, text, Suffix);
-                        mWriters[elementIndex%mWriters.Length].WriteLine(line);
-                        Interlocked.Increment(ref elementIndex);
+                        mWriters[lineIndex%mWriters.Length].WriteLine(line);
+                        Interlocked.Increment(ref lineIndex);
                     }
                 });
 
+            if (mLogger.IsDebugEnabled)
+            {
+                mLogger.Debug("finsidh spliting lines to files");
+            }
         }
 
         /// <summary>
@@ -134,10 +162,17 @@ namespace Ishimotto.Core
         /// </summary>
         public void Dispose()
         {
+
+            if (mLogger.IsDebugEnabled)
+            {
+                mLogger.Debug("Disposing Writers");
+            }
+
             foreach (var streamWriter in mWriters)
             {
                 streamWriter.Dispose();
             }
+            
         } 
         #endregion
 
@@ -149,6 +184,12 @@ namespace Ishimotto.Core
         {
             if (!Directory.Exists(mOutputDirectory))
             {
+
+                if (mLogger.IsInfoEnabled)
+                {
+                    mLogger.InfoFormat("The directory at {0} does not exist, ishimotto will create the directory",mOutputDirectory);
+                }
+
                 Directory.CreateDirectory(mOutputDirectory);
             }
         }
@@ -190,8 +231,7 @@ namespace Ishimotto.Core
         /// </summary>
         private void InitializeWriters()
         {
-
-
+            
             for (int writerPosition = 0; writerPosition < mWriters.Length; writerPosition++)
             {
 

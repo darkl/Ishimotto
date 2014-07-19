@@ -17,5 +17,8 @@
     <Setting Name="MaxConnections" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">10</Value>
     </Setting>
+    <Setting Name="LoggerFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">"Logger.Config"</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
