@@ -193,7 +193,7 @@ namespace Ishimotto.Core
             {
                 fileWriter.WriteToFiles(urls);
 
-                filePaths = fileWriter.FilesPath;
+                filePaths = fileWriter.FilesPaths;
             }
 
             return filePaths;
@@ -350,7 +350,7 @@ namespace Ishimotto.Core
             //TODO: Test that an invalid path changes the log path to string.Empty
 
             
-            if (!IsPathValid(filePath))
+            if (!HelperMethods.IsPathValid(filePath))
             {
 
                 if(mLogger.IsErrorEnabled)
@@ -386,7 +386,7 @@ namespace Ishimotto.Core
             //TODO: Test if exception is thrown
 
 
-            if (IsPathValid(downloadsDirectory))
+            if (HelperMethods.IsPathValid(downloadsDirectory))
             {
 
                 if (mLogger.IsFatalEnabled)
@@ -414,28 +414,7 @@ namespace Ishimotto.Core
             }
         }
 
-        /// <summary>
-        /// Checks if a path isa a valid path
-        /// </summary>
-        /// <param name="path">Path to check</param>
-        /// <returns>A boolean indicating if the path is valid</returns>
-        private bool IsPathValid(string path)
-        {
-
-            if (String.IsNullOrEmpty(path))
-            {
-                //TODO: test with null path
-                throw new ArgumentException("Path can not be null");
-                //TODO: Log
-            }
-
-            var invalidChars = Path.GetInvalidFileNameChars();
-
-            var invalidPathChars = Path.GetInvalidPathChars();
-
-            //If the directory conatins invalid chars, throw exception
-            return !path.Any(pathLetter => invalidChars.Contains(pathLetter) || invalidPathChars.Contains(pathLetter));
-        } 
+         
         #endregion
 
         #endregion

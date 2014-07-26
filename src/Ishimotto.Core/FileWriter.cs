@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using log4net.Repository.Hierarchy;
 
 namespace Ishimotto.Core
 {
@@ -48,7 +49,7 @@ namespace Ishimotto.Core
         /// <summary>
         /// <see cref="mFilePaths"/>
         /// </summary>
-        public IEnumerable<string> FilesPath { get { return mFilePaths.AsEnumerable(); } }
+        public IEnumerable<string> FilesPaths { get { return mFilePaths.AsEnumerable(); } }
 
         /// <summary>
         /// The extension of the document to create
@@ -65,8 +66,8 @@ namespace Ishimotto.Core
         /// </summary>
         public string Suffix { get; set; }
 
-        #endregion        
-        
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Creates new instance of <see cref="FileWriter"/>
@@ -77,7 +78,12 @@ namespace Ishimotto.Core
         /// <param name="extension"><see cref="Extension"/></param>
         public FileWriter(string outputDirectory, string fileName, int numOfFiles, string extension)
         {
-            mOutputDirectory = Path.Combine(outputDirectory, fileName);
+
+            mLogger = LogManager.GetLogger(this.GetType());
+
+            ValidateArguemnts(fileName, numOfFiles, extension);
+
+            mOutputDirectory = outputDirectory;
 
             CreateDirectory();
 
@@ -88,9 +94,8 @@ namespace Ishimotto.Core
 
             mWriters = new StreamWriter[numOfFiles];
 
-            mLogger = LogManager.GetLogger("Ishimotto.Core.FileWriter");
-
         }
+
 
         /// <summary>
         /// Creates new instance of <see cref="FileWriter"/>
@@ -106,16 +111,38 @@ namespace Ishimotto.Core
         {
             Suffix = suffix;
             Perfix = perfix;
-        } 
+        }
         #endregion
 
         #region Public Methods
         /// <summary>
-        /// Write texts to <see cref="FilesPath"/>, adding perfix and suffix if exists
+        /// Write texts to <see cref="FilesPaths"/>, adding perfix and suffix if exists
         /// </summary>
         /// <param name="lines">Lines to write</param>
         public async Task WriteToFiles(IEnumerable<string> lines)
         {
+
+            //Checking if lines argument is null
+            if (lines == null)
+            {
+                if (mLogger.IsErrorEnabled)
+                {
+                    mLogger.Error("The lines argument is null, no further actions will take place");
+
+                    throw new ArgumentNullException("The lines argument can not be null");
+                }
+            }
+
+            //Checking if there anything to write
+            if (!lines.Any())
+            {
+                if (mLogger.IsWarnEnabled)
+                {
+                    mLogger.Warn("The lines Enumrable is empty, no further actions will take place");
+                }
+
+                return;
+            }
 
             if (mLogger.IsDebugEnabled)
             {
@@ -129,7 +156,7 @@ namespace Ishimotto.Core
                 {
                     mLogger.Debug("Initalize writers");
                 }
-                
+
                 InitializeWriters();
             }
 
@@ -138,7 +165,7 @@ namespace Ishimotto.Core
 
             if (mLogger.IsInfoEnabled)
             {
-                mLogger.InfoFormat("Start splitting {0} lines into {1} files",lines.Count(),mWriters.Length);
+                mLogger.InfoFormat("Start splitting {0} lines into {1} files", lines.Count(), mWriters.Length);
             }
 
             await Task.Factory.StartNew(() =>
@@ -146,7 +173,7 @@ namespace Ishimotto.Core
                     foreach (var text in lines)
                     {
                         var line = String.Concat(Perfix, text, Suffix);
-                        mWriters[lineIndex%mWriters.Length].WriteLine(line);
+                        mWriters[lineIndex % mWriters.Length].WriteLine(line);
                         Interlocked.Increment(ref lineIndex);
                     }
                 });
@@ -163,17 +190,20 @@ namespace Ishimotto.Core
         public void Dispose()
         {
 
+
             if (mLogger.IsDebugEnabled)
             {
                 mLogger.Debug("Disposing Writers");
             }
 
-            foreach (var streamWriter in mWriters)
+            var writersToDispose = mWriters.Where(writer => writer != null);
+            foreach (var streamWriter in writersToDispose)
             {
+                streamWriter.Close();
                 streamWriter.Dispose();
             }
-            
-        } 
+
+        }
         #endregion
 
         #region Private Methods
@@ -182,12 +212,25 @@ namespace Ishimotto.Core
         /// </summary>
         private void CreateDirectory()
         {
+            if (!HelperMethods.IsPathValid(mOutputDirectory))
+            {
+                var arumentException = new ArgumentException("The output directory consist of invalid chars");
+
+                if (mLogger.IsFatalEnabled)
+                {
+                    mLogger.Fatal("Could not create output directory", arumentException);
+
+                }
+
+                throw arumentException;
+            }
+
             if (!Directory.Exists(mOutputDirectory))
             {
 
                 if (mLogger.IsInfoEnabled)
                 {
-                    mLogger.InfoFormat("The directory at {0} does not exist, ishimotto will create the directory",mOutputDirectory);
+                    mLogger.InfoFormat("The directory at {0} does not exist, ishimotto will create the directory", mOutputDirectory);
                 }
 
                 Directory.CreateDirectory(mOutputDirectory);
@@ -214,8 +257,14 @@ namespace Ishimotto.Core
                 {
                     index++;
 
+                    var previousFilePath = filePath;
+
                     filePath = Path.Combine(mOutputDirectory, String.Concat(mFileName, index, ".", Extension));
 
+                    if (mLogger.IsInfoEnabled)
+                    {
+                        mLogger.InfoFormat("The file {0} already exist, tring to create file {1}", previousFilePath, filePath);
+                    }
                 }
 
                 files.Add(filePath);
@@ -227,11 +276,11 @@ namespace Ishimotto.Core
         }
 
         /// <summary>
-        /// Initialize the streams to write to <see cref="FilesPath"/>
+        /// Initialize the streams to write to <see cref="FilesPaths"/>
         /// </summary>
         private void InitializeWriters()
         {
-            
+
             for (int writerPosition = 0; writerPosition < mWriters.Length; writerPosition++)
             {
 
@@ -241,7 +290,55 @@ namespace Ishimotto.Core
 
             mAreStreamInitialized = true;
 
-        } 
+        }
+
+        /// <summary>
+        /// Validate that the arguments are valid
+        /// </summary>
+        /// <param name="fileName"><see cref="mFileName"/></param>
+        /// <param name="numOfFiles">Number of files to create</param>
+        /// <param name="extension"><see cref="Extension"/></param>
+        private void ValidateArguemnts(string fileName, int numOfFiles, string extension)
+        {
+
+            Exception exception = null;
+
+            if (String.IsNullOrEmpty(fileName))
+            {
+
+                exception = new ArgumentNullException("The file name can not be null");
+
+                if (mLogger.IsFatalEnabled)
+                    mLogger.Fatal("The given file name is null", exception);
+
+
+            }
+
+            if (String.IsNullOrEmpty(extension))
+            {
+
+                exception = new ArgumentNullException("The extension can not be null");
+
+                if (mLogger.IsFatalEnabled)
+                    mLogger.Fatal("The given extension is null", exception);
+
+            }
+
+            if (numOfFiles <= 0)
+            {
+
+                exception = new ArgumentOutOfRangeException("The numOfFiles nust be grather than 0");
+
+                if (mLogger.IsFatalEnabled)
+                    mLogger.Fatal("InvalidParameter: numOfFiles", exception);
+            }
+
+
+            if (exception != null)
+            {
+                throw exception;
+            }
+        }
         #endregion
     }
 }
