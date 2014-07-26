@@ -33,7 +33,7 @@ namespace Ishimotto.Core
         /// <summary>
         /// Collection of all the paths creates by the <see cref="FileWriter"/>
         /// </summary>
-        private List<string> mFilesesPath;
+        private List<string> mFilePaths;
 
         /// <summary>
         /// The name of the file to create
@@ -46,9 +46,9 @@ namespace Ishimotto.Core
 
         #region Properties
         /// <summary>
-        /// <see cref="mFilesesPath"/>
+        /// <see cref="mFilePaths"/>
         /// </summary>
-        public IEnumerable<string> FilesPath { get { return mFilesesPath; } }
+        public IEnumerable<string> FilesPath { get { return mFilePaths.AsEnumerable(); } }
 
         /// <summary>
         /// The extension of the document to create
@@ -84,7 +84,7 @@ namespace Ishimotto.Core
             mFileName = fileName;
             Extension = extension;
 
-            mFilesesPath = new List<string>(GetFilePaths(numOfFiles));
+            mFilePaths = new List<string>(GetFilePaths(numOfFiles));
 
             mWriters = new StreamWriter[numOfFiles];
 
@@ -138,7 +138,7 @@ namespace Ishimotto.Core
 
             if (mLogger.IsInfoEnabled)
             {
-                mLogger.InfoFormat("Start writing {0} lines to {1} files",lines.Count(),mWriters.Length);
+                mLogger.InfoFormat("Start splitting {0} lines into {1} files",lines.Count(),mWriters.Length);
             }
 
             await Task.Factory.StartNew(() =>
@@ -235,7 +235,7 @@ namespace Ishimotto.Core
             for (int writerPosition = 0; writerPosition < mWriters.Length; writerPosition++)
             {
 
-                mWriters[writerPosition] = new StreamWriter(mFilesesPath[writerPosition], false);
+                mWriters[writerPosition] = new StreamWriter(mFilePaths[writerPosition], false);
 
             }
 
