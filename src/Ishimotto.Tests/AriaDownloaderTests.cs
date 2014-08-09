@@ -8,21 +8,34 @@ using NUnit.Framework;
 
 namespace Ishimotto.Tests
 {
+    /// <summary>
+    /// Test functioning of <see cref="AriaDownloader"/>'s constractor
+    /// </summary>
     [TestFixture]
     public class AriaDownloaderTests
     {
+        #region Constants
         private const string TESTS_DIRECTORY = @"C:\Ishimotto\Tests\";
 
         private const string DOWNLOADS_DIRECTORY = @"C:\Ishimotto\Tests\Downloads";
 
         private const string ARIA_LOG_PATH = TESTS_DIRECTORY + "aria.log";
+        #endregion
 
+        #region Initialization
+        /// <summary>
+        /// Configurate the logger before all tests
+        /// </summary>
         [TestFixtureSetUp]
         public void Init()
         {
             XmlConfigurator.Configure();
         }
 
+        /// <summary>
+        /// Creating the tests directory in if it doesd not exist
+        /// </summary>
+        /// 
         [SetUp]
         public void CreateTestsDirectory()
         {
@@ -31,76 +44,7 @@ namespace Ishimotto.Tests
                 Directory.CreateDirectory(TESTS_DIRECTORY);
             }
         }
-
-        [TearDown]
-        public void DeleteDirectory()
-        {
-            var retries = 5;
-
-            for (int tryNo = 0; tryNo < retries; tryNo++)
-            {
-                try
-                {
-                    if (Directory.Exists(TESTS_DIRECTORY))
-                    {
-                        Directory.Delete(TESTS_DIRECTORY, true);
-                    }
-
-                    tryNo = retries;
-                }
-                catch (Exception)
-                {
-
-                    tryNo++;
-                    Thread.Sleep(500);
-                }
-
-            }
-
-
-        }
-
-        [TestFixtureTearDown]
-        public void CleanUp()
-        {
-            DeleteDirectory();
-        }
-
-
-        [Test]
-        public void Download_Directory_Is_Created()
-        {
-            //Act
-
-            var directoryPath = Path.Combine(DOWNLOADS_DIRECTORY);
-            var downloader = new AriaDownloader(directoryPath);
-
-            //Assert
-
-            Assert.That(Directory.Exists(directoryPath), Is.True);
-
-        }
-
-        [Test]
-        public void Downloads_Directory_Is_Set()
-        {
-            //When directory does not exist
-            AssertDirectoryExist();
-
-            //When directory is exist
-            AssertDirectoryExist();
-        }
-
-        private static void AssertDirectoryExist()
-        {
-//Act
-
-            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY);
-
-            //Assert
-
-            Assert.That(downloader.DownloadsDirectory, Is.EqualTo(DOWNLOADS_DIRECTORY));
-        }
+        #endregion
 
         [Test]
         public void Downloads_Directory_Contains_Invalid_Chars()
@@ -131,7 +75,80 @@ namespace Ishimotto.Tests
 
             Assert.That(downloader.AriaLogPath, Is.Empty);
         }
+        
+        [Test]
+        public void Download_Directory_Is_Created()
+        {
+            //Act
 
+            var directoryPath = Path.Combine(DOWNLOADS_DIRECTORY);
+            var downloader = new AriaDownloader(directoryPath);
+
+            //Assert
+
+            Assert.That(Directory.Exists(directoryPath), Is.True);
+
+        }
+
+        [Test]
+        public void Downloads_Directory_Is_Set()
+        {
+            //When directory does not exist
+            AssertDirectoryExist();
+
+            //When directory is exist
+            AssertDirectoryExist();
+        }
+        
+        private static void AssertDirectoryExist()
+        {
+            //Act
+
+            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY);
+
+            //Assert
+
+            Assert.That(downloader.DownloadsDirectory, Is.EqualTo(DOWNLOADS_DIRECTORY));
+        }
+
+        [Test]
+        public void When_Max_Connections_Is_Zero()
+        {
+            //Act
+
+            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 0);
+
+            //Assert
+
+            Assert.That(downloader.MaxConnections, Is.EqualTo(1));
+
+        }
+        
+        [Test]
+        public void Max_Connections_Is_Set()
+        {
+            //Act
+
+            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 7);
+
+            //Assert
+
+            Assert.That(downloader.MaxConnections, Is.EqualTo(7));
+
+        }
+
+        [Test]
+        public void Severity_Is_Set()
+        {
+            //Act
+
+            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 5, ARIA_LOG_PATH, AriaSeverity.Warn);
+
+            //Assert
+
+            Assert.That(downloader.Severity, Is.EqualTo(AriaSeverity.Warn));
+        }
+        
         [Test]
         public void Aria_Log_Created()
         {
@@ -168,7 +185,6 @@ namespace Ishimotto.Tests
 
         }
 
-
         [Test]
         public void When_Aria_Log_Is_Not_Empty_Severity_Is_Not_None()
         {
@@ -182,44 +198,42 @@ namespace Ishimotto.Tests
 
         }
 
-        [Test]
-        public void When_Max_Connections_Is_Zero()
+        #region TearDown
+        [TearDown]
+        public void DeleteDirectory()
         {
-            //Act
+            var retries = 5;
 
-            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 0);
+            for (int tryNo = 0; tryNo < retries; tryNo++)
+            {
+                try
+                {
+                    if (Directory.Exists(TESTS_DIRECTORY))
+                    {
+                        Directory.Delete(TESTS_DIRECTORY, true);
+                    }
 
-            //Assert
+                    tryNo = retries;
+                }
+                catch (Exception)
+                {
 
-            Assert.That(downloader.MaxConnections, Is.EqualTo(1));
+                    tryNo++;
+                    Thread.Sleep(500);
+                }
+
+            }
+
 
         }
 
-
-        [Test]
-        public void Max_Connections_Is_Set()
+        [TestFixtureTearDown]
+        public void CleanUp()
         {
-            //Act
-
-            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 7);
-
-            //Assert
-
-            Assert.That(downloader.MaxConnections, Is.EqualTo(7));
-
+            DeleteDirectory();
         }
+        #endregion
 
-        [Test]
-        public void Set_Severity()
-        {
-            //Act
-
-            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 5, ARIA_LOG_PATH, AriaSeverity.Warn);
-
-            //Assert
-
-            Assert.That(downloader.Severity,Is.EqualTo(AriaSeverity.Warn));
-        }
 
     }
 }

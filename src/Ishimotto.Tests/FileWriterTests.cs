@@ -16,23 +16,37 @@ namespace Ishimotto.Tests
 {
 
     /// <summary>
-    /// Test the funcuation of <see cref="FileWriter"/> 
+    /// Test the functioning of <see cref="FileWriter"/> 
     /// </summary>
     [TestFixture]
     public class FileWriterTests
     {
+
+        #region Constants
+        /// <summary>
+        /// the Tests directory
+        /// </summary>
         private const string TESTS_DIRECTORY = @"C:\Ishimotto\Tests\";
 
         private const string DUMMY_STRING = "DUMMY";
 
         private static readonly string[] THINGS_TO_WRITE = new[] { "12", "243", "2354" };
+        #endregion
 
+        #region Initialization
+        /// <summary>
+        /// Configurate the logger before all tests
+        /// </summary>
         [TestFixtureSetUp]
         public void Init()
         {
             XmlConfigurator.Configure();
         }
 
+        /// <summary>
+        /// Creating the tests directory in if it doesd not exist
+        /// </summary>
+        /// 
         [SetUp]
         public void CreateTestsDirectory()
         {
@@ -40,9 +54,10 @@ namespace Ishimotto.Tests
             {
                 Directory.CreateDirectory(TESTS_DIRECTORY);
             }
-        }
+        } 
+        #endregion
 
-
+        #region Handle Invalid Arguments
         [Test]
         public void Check_That_Directory_Is_Created()
         {
@@ -64,7 +79,6 @@ namespace Ishimotto.Tests
 
         }
 
-
         [Test]
         public void Handle_Null_Directory()
         {
@@ -73,7 +87,6 @@ namespace Ishimotto.Tests
             Assert.Throws<ArgumentNullException>(() => new FileWriter(null, DUMMY_STRING, 2, DUMMY_STRING));
 
         }
-
 
         [Test]
         public void Handle_Zero_Writers()
@@ -84,7 +97,6 @@ namespace Ishimotto.Tests
 
         }
 
-
         [Test]
         public void Handle_Null_File_Name()
         {
@@ -94,38 +106,12 @@ namespace Ishimotto.Tests
 
         }
 
-
         [Test]
         public void Handle_Null_Extension()
         {
             //Act + Assert
 
             Assert.Throws<ArgumentNullException>(() => new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 2, null));
-
-        }
-
-        [Test]
-        public void Check_That_File_IsCreated()
-        {
-            //Arrange
-
-            FileWriter writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
-
-
-            //Act
-
-            writer.WriteToFiles(THINGS_TO_WRITE);
-
-
-            var result = writer.FilesPaths.Any(path => !File.Exists(path));
-
-            writer.Dispose();
-
-            //Assert
-
-            Assert.That(result, Is.False);
-
-
 
         }
 
@@ -144,37 +130,6 @@ namespace Ishimotto.Tests
 
             Assert.Throws<ArgumentException>(() => new FileWriter(invalidDirecotPath, DUMMY_STRING, 1, DUMMY_STRING));
 
-        }
-
-        [Test]
-        public async void Check_That_File_Conatins_Data()
-        {
-            //Arrange
-
-            var fileWriter = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
-
-            //Act
-
-            await fileWriter.WriteToFiles(THINGS_TO_WRITE);
-
-            fileWriter.Dispose();
-
-            var values = new List<string>(THINGS_TO_WRITE.Length);
-
-            using (var reader = new StreamReader(fileWriter.FilesPaths.First()))
-            {
-
-                while (!reader.EndOfStream)
-                {
-                    values.Add(reader.ReadLine());        
-                }
-              
-            }
-
-            
-            //Assert
-
-            Assert.That(values, Is.EqualTo(THINGS_TO_WRITE));
         }
 
         [Test]
@@ -204,15 +159,77 @@ namespace Ishimotto.Tests
             //Act + Assert
 
             Assert.DoesNotThrow(() => writer.WriteToFiles(Enumerable.Empty<string>()));
-            
+
             writer.Dispose();
 
             AssertFilesDoesNotExists(writer);
 
-            
+
+
+        } 
+        #endregion
+
+        #region Check Fancuation
+        [Test]
+        public void Check_That_File_IsCreated()
+        {
+            //Arrange
+
+            FileWriter writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+
+
+            //Act
+
+            writer.WriteToFiles(THINGS_TO_WRITE);
+
+
+            var result = writer.FilesPaths.Any(path => !File.Exists(path));
+
+            writer.Dispose();
+
+            //Assert
+
+            Assert.That(result, Is.False);
+
+
 
         }
 
+        [Test]
+        public async void Check_That_File_Conatins_Data()
+        {
+            //Arrange
+
+            var fileWriter = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+
+            //Act
+
+            await fileWriter.WriteToFiles(THINGS_TO_WRITE);
+
+            fileWriter.Dispose();
+
+            var values = new List<string>(THINGS_TO_WRITE.Length);
+
+            using (var reader = new StreamReader(fileWriter.FilesPaths.First()))
+            {
+
+                while (!reader.EndOfStream)
+                {
+                    values.Add(reader.ReadLine());
+                }
+
+            }
+
+
+            //Assert
+
+            Assert.That(values, Is.EqualTo(THINGS_TO_WRITE));
+        }
+
+        /// <summary>
+        /// Checks that all the paths of <see cref="FileWriter.FilesPaths"/> does not exist in <see cref="TESTS_DIRECTORY"/>
+        /// </summary>
+        /// <param name="writer"></param>
         private static void AssertFilesDoesNotExists(FileWriter writer)
         {
             foreach (var path in writer.FilesPaths)
@@ -244,9 +261,10 @@ namespace Ishimotto.Tests
             //Assert
 
             Assert.That(File.Exists(path), Is.True);
-        }
+        } 
+        #endregion
 
-
+        #region TearDown
         [TearDown]
         public void DeleteDirectory()
         {
@@ -279,7 +297,8 @@ namespace Ishimotto.Tests
         public void CleanUp()
         {
             DeleteDirectory();
-        }
+        } 
+        #endregion
 
 
     }
