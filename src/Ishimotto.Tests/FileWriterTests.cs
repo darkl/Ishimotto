@@ -54,7 +54,7 @@ namespace Ishimotto.Tests
             {
                 Directory.CreateDirectory(TESTS_DIRECTORY);
             }
-        } 
+        }
         #endregion
 
         #region Handle Invalid Arguments
@@ -166,12 +166,12 @@ namespace Ishimotto.Tests
 
 
 
-        } 
+        }
         #endregion
 
         #region Check Fancuation
         [Test]
-        public void Check_That_File_IsCreated()
+        public async void Check_That_File_IsCreated()
         {
             //Arrange
 
@@ -180,7 +180,7 @@ namespace Ishimotto.Tests
 
             //Act
 
-            writer.WriteToFiles(THINGS_TO_WRITE);
+            await writer.WriteToFiles(THINGS_TO_WRITE);
 
 
             var result = writer.FilesPaths.Any(path => !File.Exists(path));
@@ -190,9 +190,6 @@ namespace Ishimotto.Tests
             //Assert
 
             Assert.That(result, Is.False);
-
-
-
         }
 
         [Test]
@@ -230,7 +227,7 @@ namespace Ishimotto.Tests
         /// Checks that all the paths of <see cref="FileWriter.FilesPaths"/> does not exist in <see cref="TESTS_DIRECTORY"/>
         /// </summary>
         /// <param name="writer"></param>
-        private static void AssertFilesDoesNotExists(FileWriter writer)
+        private  static void AssertFilesDoesNotExists(FileWriter writer)
         {
             foreach (var path in writer.FilesPaths)
             {
@@ -239,11 +236,16 @@ namespace Ishimotto.Tests
         }
 
         [Test]
-        public void Handle_Existing_File()
+        public async void Handle_Existing_File()
         {
             //Arrange
 
-            using (var stream = new FileStream(Path.Combine(TESTS_DIRECTORY, DUMMY_STRING + "1." + DUMMY_STRING), FileMode.OpenOrCreate)) ;
+            var filePath = Path.Combine(TESTS_DIRECTORY, DUMMY_STRING + "1." + DUMMY_STRING);
+
+            if (!File.Exists(filePath))
+            {
+                File.Create(filePath);
+            }
 
             //Act 
 
@@ -252,7 +254,7 @@ namespace Ishimotto.Tests
             //build the path that should be created
 
 
-            writer.WriteToFiles(THINGS_TO_WRITE);
+            await writer.WriteToFiles(THINGS_TO_WRITE);
 
             var path = Path.Combine(TESTS_DIRECTORY, DUMMY_STRING + "2." + DUMMY_STRING);
 
@@ -261,7 +263,7 @@ namespace Ishimotto.Tests
             //Assert
 
             Assert.That(File.Exists(path), Is.True);
-        } 
+        }
         #endregion
 
         #region TearDown
@@ -297,7 +299,7 @@ namespace Ishimotto.Tests
         public void CleanUp()
         {
             DeleteDirectory();
-        } 
+        }
         #endregion
 
 
