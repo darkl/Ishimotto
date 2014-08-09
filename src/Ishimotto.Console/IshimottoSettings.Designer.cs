@@ -94,5 +94,17 @@ namespace Ishimotto.Console {
                 this["LoggerFileName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.nuget.org/api/v2/")]
+        public string NuGetUrl {
+            get {
+                return ((string)(this["NuGetUrl"]));
+            }
+            set {
+                this["NuGetUrl"] = value;
+            }
+        }
     }
 }

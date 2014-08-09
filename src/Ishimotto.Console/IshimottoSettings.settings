@@ -20,5 +20,8 @@
     <Setting Name="LoggerFileName" Type="System.String" Scope="User">
       <Value Profile="(Default)">"Logger.Config"</Value>
     </Setting>
+    <Setting Name="NuGetUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.nuget.org/api/v2/</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

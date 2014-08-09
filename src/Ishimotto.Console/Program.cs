@@ -29,7 +29,9 @@ namespace Ishimotto.Console
                 logger.Debug("Start Ishimotto process");
             }
 
-            NuGetQuerier querier = new NuGetQuerier();
+            var ishimottoSettings = IshimottoSettings.Default;
+
+            NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
 
 
             if (logger.IsInfoEnabled)
@@ -45,13 +47,11 @@ namespace Ishimotto.Console
 
             if (logger.IsInfoEnabled)
             {
-                logger.InfoFormat("{0} packages returned", links.Count());
+                logger.InfoF    ormat("{0} packages returned", links.Count());
             }
 
             var severity = GetAriaSeverity();
-
-            var ishimottoSettings = IshimottoSettings.Default;
-
+            
             if (logger.IsInfoEnabled)
             {
                 logger.Info("Start downloading packages");
