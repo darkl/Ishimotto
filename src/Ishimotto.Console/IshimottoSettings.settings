@@ -18,10 +18,13 @@
       <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="LoggerFileName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">"Logger.Config"</Value>
+      <Value Profile="(Default)">Logger.Config</Value>
     </Setting>
     <Setting Name="NuGetUrl" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://www.nuget.org/api/v2/</Value>
+    </Setting>
+    <Setting Name="LastFetchTime" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">2014-07-07</Value>
     </Setting>
   </Settings>
 </SettingsFile>

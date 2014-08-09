@@ -85,7 +85,7 @@ namespace Ishimotto.Console {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\"Logger.Config\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Logger.Config")]
         public string LoggerFileName {
             get {
                 return ((string)(this["LoggerFileName"]));
@@ -104,6 +104,18 @@ namespace Ishimotto.Console {
             }
             set {
                 this["NuGetUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2014-07-07")]
+        public global::System.DateTime LastFetchTime {
+            get {
+                return ((global::System.DateTime)(this["LastFetchTime"]));
+            }
+            set {
+                this["LastFetchTime"] = value;
             }
         }
     }

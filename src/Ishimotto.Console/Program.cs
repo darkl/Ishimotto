@@ -19,11 +19,15 @@ namespace Ishimotto.Console
         private static void Main(string[] args)
         {
 
-            XmlConfigurator.ConfigureAndWatch(new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,IshimottoSettings.Default.LoggerFileName)));
+              var loggerPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, IshimottoSettings.Default.LoggerFileName);
+
+             XmlConfigurator.ConfigureAndWatch(new FileInfo(loggerPath));
 
 
-            logger  = LogManager.GetLogger("Ishimotto.Console.Program");
+            logger = LogManager.GetLogger("Ishimotto.Console.Program");
 
+            AppDomain.CurrentDomain.UnhandledException += LogUnhandledException;
+            
             if (logger.IsDebugEnabled)
             {
                 logger.Debug("Start Ishimotto process");
@@ -40,18 +44,18 @@ namespace Ishimotto.Console
             }
 
             var result =
-                querier.FetchEverything(40, TimeSpan.FromSeconds(10));
+                querier.FetchFrom(ishimottoSettings.LastFetchTime);
 
 
             var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
 
             if (logger.IsInfoEnabled)
             {
-                logger.InfoF    ormat("{0} packages returned", links.Count());
+                logger.InfoFormat("{0} packages returned", links.Count());
             }
 
             var severity = GetAriaSeverity();
-            
+
             if (logger.IsInfoEnabled)
             {
                 logger.Info("Start downloading packages");
@@ -68,6 +72,20 @@ namespace Ishimotto.Console
             }
 
 
+            IshimottoSettings.Default.LastFetchTime = DateTime.Now;
+
+            IshimottoSettings.Default.Save();
+
+        }
+
+        /// <summary>
+        /// Logging the exception before terminating the program
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void LogUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            logger.Fatal("An unhandled exception occured",e.ExceptionObject as Exception);
         }
 
         /// <summary>
