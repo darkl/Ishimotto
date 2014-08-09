@@ -32,13 +32,14 @@ namespace Ishimotto.Core
     {
 
         #region Constants
-        private const string ARIA_EXE = "aria2c.exe"; 
+        private const string ARIA_EXE = "aria2c.exe";
+
+        private const int MAX_URLS_IN_FILE = 500;
         #endregion
 
         #region Members
         private ILog mLogger; 
         #endregion
-
 
         #region Properties
 
@@ -80,13 +81,16 @@ namespace Ishimotto.Core
         /// <param name="maxConnections"><see cref="MaxConnections"/></param>
         /// <param name="logPath"><see cref="AriaLogPath"/></param>
         /// <param name="severity"><see cref=" Severity"/></param>
-        public AriaDownloader(string downloadsDirectory, bool deleteTempFiles,uint maxConnections, string logPath, AriaSeverity severity)
+        public AriaDownloader(string downloadsDirectory, bool deleteTempFiles,uint maxConnections, string logPath = "", AriaSeverity severity = AriaSeverity.None)
         {
+
+            mLogger = LogManager.GetLogger("Ishimotto.Core.AriaDownloader");
+
             HandleArguments(downloadsDirectory,maxConnections, logPath, severity);
             
             DeleteTempFiles = deleteTempFiles;
 
-            mLogger = LogManager.GetLogger("Ishimotto.Core.AriaDownloader");
+        
         }
 
 
@@ -131,7 +135,11 @@ namespace Ishimotto.Core
                 mLogger.InfoFormat("Start downloading file from url {0}", url);
             }
 
-            Process.Start(GetProcessStartInformation(url));
+
+            var arguments = String.Format("{0} -d {1}",url,DownloadsDirectory);
+        
+
+            Process.Start(GetProcessStartInformation(arguments));
         }
 
         /// <summary>
@@ -148,6 +156,14 @@ namespace Ishimotto.Core
                 }
 
                 throw new ArgumentException("The urls argument can not be null");
+            }
+
+            if (urls.Any())
+            {
+                if (mLogger.IsWarnEnabled)
+                {
+                    mLogger.Warn("No files to download . . . cycle is done");
+                }
             }
 
             if (mLogger.IsInfoEnabled)
@@ -186,10 +202,9 @@ namespace Ishimotto.Core
 
             IEnumerable<string> filePaths;
 
+            var numOfFiles = Math.Max((urls.Count()/MAX_URLS_IN_FILE),1);
 
-            //TODO: Test what happen if the file links1.txt already exist
-
-            using (var fileWriter = new FileWriter(DownloadsDirectory, "links", 1, "txt"))
+            using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {
                 fileWriter.WriteToFiles(urls);
 
@@ -205,15 +220,13 @@ namespace Ishimotto.Core
         /// <param name="filePath">File contains a list of urls</param>
         private void DownloadFromFile(string filePath)
         {
-            //TODO: check that downloading from 5 threads is working properly
-
+            
             if (mLogger.IsInfoEnabled)
             {
                 mLogger.InfoFormat("Start downloading urls from {0}", filePath);
             }
 
-            //TODO: make a file with single url and Test if the package is downloaded (Give the urls as Enumrable<string> to the Download method
-
+            
             StringBuilder arguments = new StringBuilder( String.Concat(" -x ",MaxConnections, "  -i ", filePath, " -d ", DownloadsDirectory));
 
             AddLogArguments(arguments);
@@ -232,11 +245,7 @@ namespace Ishimotto.Core
 
             if (DeleteTempFiles)
             {
-                //Delete the link files
             
-                
-                    //TODO: test if the file is deleted
-
                     if (mLogger.IsDebugEnabled)
                     {
                         mLogger.DebugFormat("Deleting file {0}",filePath);
@@ -270,7 +279,7 @@ namespace Ishimotto.Core
         {
             var processStartInfo = new ProcessStartInfo();
 
-            processStartInfo.UseShellExecute = true;
+            processStartInfo.UseShellExecute = false;
             processStartInfo.CreateNoWindow = true;
             processStartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ARIA_EXE);
 
@@ -309,11 +318,11 @@ namespace Ishimotto.Core
                 }
                 
                 MaxConnections = 1;
+            }
 
-                //TODO: Test
-
-
-
+            else
+            {
+                MaxConnections = maxConnections;
             }
         }
 
@@ -324,33 +333,54 @@ namespace Ishimotto.Core
         /// <param name="severity"><see cref="Severity"/></param>
         private void HandleSeverity(string logPath, AriaSeverity severity)
         {
-            //TODO: Test when the log file is empty & severity is changed to none
-            if (String.IsNullOrEmpty(logPath) && severity != AriaSeverity.None)
+            if (String.IsNullOrEmpty(logPath))
             {
 
-                if (mLogger.IsErrorEnabled)
+                if (severity != AriaSeverity.None)
                 {
-                    mLogger.Error("The severity must be set to NONE unless a log path is provided, no logs will be written from Arira.exe");
+                    if (mLogger.IsErrorEnabled)
+                    {
+                        mLogger.Error(
+                            "The severity must be set to NONE unless a log path is provided, no logs will be written from Arira.exe");
+                    }
+
+
+                    Severity = AriaSeverity.None;
+                }
+                
+            }
+            else if(severity == AriaSeverity.None)
+            {
+                if (mLogger.IsWarnEnabled)
+                {
+                    mLogger.Warn(
+                        "The severity must not be set to NONE when a log path is provided, severity will be NOTICE level");
+
                 }
 
+                Severity = AriaSeverity.Notice;
+            }
 
-                Severity = AriaSeverity.None;
-
-             
+            else
+            {
+                Severity = severity;
             }
         }
 
         /// <summary>
         /// Varify that a file path is valid, and create the file if it does not exist
         /// </summary>
-        /// <param name="filePath">path to varify</param>
-        private void HandleAriaLogPath(string filePath)
+        /// <param name="logPath">path to varify</param>
+        private void HandleAriaLogPath(string logPath)
         {
 
-            //TODO: Test that an invalid path changes the log path to string.Empty
+            //If logPath is empty there is nothing to check
+            if (String.IsNullOrEmpty(logPath))
+            {
+                return;
+            }
 
-            
-            if (!HelperMethods.IsPathValid(filePath))
+            if (!HelperMethods.IsPathValid(logPath))
             {
 
                 if(mLogger.IsErrorEnabled)
@@ -360,19 +390,20 @@ namespace Ishimotto.Core
 
                 AriaLogPath = string.Empty;
 
-
+                return;
             }
 
-            //TODO: Test that a log file is created
-            if (!File.Exists(filePath))
+            if (!File.Exists(logPath))
             {
-                if (mLogger.IsDebugEnabled)
+                if (mLogger.IsInfoEnabled)
                 {
-                    mLogger.DebugFormat("The file at {0} does not exist, ishimotto will create it");
+                    mLogger.InfoFormat("The file at {0} does not exist, ishimotto will create it",logPath);
                 }
 
-                File.Create(filePath);
+                File.Create(logPath);
             }
+
+            AriaLogPath = logPath;
         }
 
         /// <summary>
@@ -381,12 +412,7 @@ namespace Ishimotto.Core
         /// <param name="downloadsDirectory">The directory path to check if is valid</param>
         private void HandleDownloadDirectory(string downloadsDirectory)
         {
-            //TODO: Test if directory is created
-
-            //TODO: Test if exception is thrown
-
-
-            if (HelperMethods.IsPathValid(downloadsDirectory))
+            if (!HelperMethods.IsPathValid(downloadsDirectory))
             {
 
                 if (mLogger.IsFatalEnabled)
@@ -401,17 +427,18 @@ namespace Ishimotto.Core
             //If the directory does not exist, create it
             if (!Directory.Exists(downloadsDirectory))
             {
-                //TODO: Test that directory is created
-
-                if (mLogger.IsDebugEnabled)
+      
+                if (mLogger.IsInfoEnabled)
 
                 {
-                    mLogger.DebugFormat("The directory at {0} is not exist, ishimotto will create it");
+                    mLogger.InfoFormat("The directory at {0} is not exist, ishimotto will create it",downloadsDirectory);
                 }
                 Directory.CreateDirectory(downloadsDirectory);
 
-                DownloadsDirectory = downloadsDirectory;
+               
             }
+
+            DownloadsDirectory = downloadsDirectory;
         }
 
          

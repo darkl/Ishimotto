@@ -169,13 +169,32 @@ namespace Ishimotto.Core
             }
 
             await Task.Factory.StartNew(() =>
+            {
+
+                var x = lines.Count()/mWriters.Length;
+
+
+                var writerIndex = 0;
+
+
+                foreach (var text in lines)
                 {
-                    foreach (var text in lines)
+                    var line = String.Concat(Perfix, text, Suffix);
+
+
+                    lock (lines)
                     {
-                        var line = String.Concat(Perfix, text, Suffix);
-                        mWriters[lineIndex % mWriters.Length].WriteLine(line);
-                        Interlocked.Increment(ref lineIndex);
+                        var currentWriter = mWriters[lineIndex%mWriters.Length];
+
+
+                        currentWriter.WriteLine(line);
                     }
+
+
+
+                    Interlocked.Increment(ref lineIndex);
+                }
+            
                 });
 
             if (mLogger.IsDebugEnabled)
