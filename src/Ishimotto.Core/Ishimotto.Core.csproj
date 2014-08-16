@@ -32,7 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Net45\System.Reactive.Core.dll</HintPath>
@@ -53,10 +57,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AriaDownloader.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadStatus\DownloadComplete.cs" />
     <Compile Include="DownloadStatus\DownloadFailed.cs" />
     <Compile Include="DownloadStatus\DownloadStatus.cs" />
+    <Compile Include="HelperMethods.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="PendingDownload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
