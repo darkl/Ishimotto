@@ -30,7 +30,7 @@ namespace Ishimotto.NuGet
             var query =
                 from package in mFeedContext.Packages
                 where package.Published >= startTime &&
-                      !package.IsPrerelease
+                      !package.IsPrerelease && package.IsLatestVersion
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);

@@ -158,7 +158,7 @@ namespace Ishimotto.Core
                 throw new ArgumentException("The urls argument can not be null");
             }
 
-            if (urls.Any())
+            if (!urls.Any())
             {
                 if (mLogger.IsWarnEnabled)
                 {
@@ -202,7 +202,7 @@ namespace Ishimotto.Core
 
             IEnumerable<string> filePaths;
 
-            var numOfFiles = 1;
+            var numOfFiles = Math.Max(urls.Count() / 5000,1);
 
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {
