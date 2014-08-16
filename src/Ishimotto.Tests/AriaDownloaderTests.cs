@@ -148,25 +148,7 @@ namespace Ishimotto.Tests
 
             Assert.That(downloader.Severity, Is.EqualTo(AriaSeverity.Warn));
         }
-        
-        [Test]
-        public void Aria_Log_Created()
-        {
-
-            //Arrange
-
-
-
-            //Act
-            var downloader = new AriaDownloader(DOWNLOADS_DIRECTORY, false, 2, ARIA_LOG_PATH, AriaSeverity.Error);
-
-
-            //Assert
-
-            Assert.That(File.Exists(downloader.AriaLogPath), Is.True);
-
-        }
-
+       
         [Test]
         public void When_Aria_Log_Is_Empty_Severity_Set_To_None()
         {

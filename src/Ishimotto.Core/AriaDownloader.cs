@@ -38,7 +38,7 @@ namespace Ishimotto.Core
         #endregion
 
         #region Members
-        private ILog mLogger; 
+        private ILog mLogger;
         #endregion
 
         #region Properties
@@ -81,27 +81,27 @@ namespace Ishimotto.Core
         /// <param name="maxConnections"><see cref="MaxConnections"/></param>
         /// <param name="logPath"><see cref="AriaLogPath"/></param>
         /// <param name="severity"><see cref=" Severity"/></param>
-        public AriaDownloader(string downloadsDirectory, bool deleteTempFiles,uint maxConnections, string logPath = "", AriaSeverity severity = AriaSeverity.None)
+        public AriaDownloader(string downloadsDirectory, bool deleteTempFiles, uint maxConnections, string logPath = "", AriaSeverity severity = AriaSeverity.None)
         {
 
             mLogger = LogManager.GetLogger("Ishimotto.Core.AriaDownloader");
 
-            HandleArguments(downloadsDirectory,maxConnections, logPath, severity);
-            
+            HandleArguments(downloadsDirectory, maxConnections, logPath, severity);
+
             DeleteTempFiles = deleteTempFiles;
 
-        
+
         }
 
 
-     
+
 
         /// <summary>
         /// Creates new instance of <see cref="AriaDownloader"/>
         /// </summary>
         /// <param name="downloadsDirectory"><see cref="DownloadsDirectory"/></param>
         public AriaDownloader(string downloadsDirectory)
-            : this(downloadsDirectory, false,10, String.Empty, AriaSeverity.None)
+            : this(downloadsDirectory, false, 10, String.Empty, AriaSeverity.None)
         {
 
         }
@@ -113,13 +113,13 @@ namespace Ishimotto.Core
         /// <param name="deleteTempFiles"><see cref="DeleteTempFiles"/></param>
 
         public AriaDownloader(string downloadsDirectory, bool deleteTempFiles)
-            : this(downloadsDirectory, deleteTempFiles,10, String.Empty, AriaSeverity.None)
+            : this(downloadsDirectory, deleteTempFiles, 10, String.Empty, AriaSeverity.None)
         {
 
         }
 
 
-     
+
 
         #endregion
 
@@ -136,8 +136,8 @@ namespace Ishimotto.Core
             }
 
 
-            var arguments = String.Format("{0} -d {1}",url,DownloadsDirectory);
-        
+            var arguments = String.Format("{0} -d {1}", url, DownloadsDirectory);
+
 
             Process.Start(GetProcessStartInformation(arguments));
         }
@@ -206,7 +206,7 @@ namespace Ishimotto.Core
 
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {
-               fileWriter.WriteToFiles(urls);
+                fileWriter.WriteToFiles(urls);
 
                 filePaths = fileWriter.FilesPaths;
             }
@@ -220,17 +220,17 @@ namespace Ishimotto.Core
         /// <param name="filePath">File contains a list of urls</param>
         private void DownloadFromFile(string filePath)
         {
-            
+
             if (mLogger.IsInfoEnabled)
             {
                 mLogger.InfoFormat("Start downloading urls from {0}", filePath);
             }
 
-            
-            StringBuilder arguments = new StringBuilder( String.Concat(" -x ",MaxConnections, "  -i ", filePath, " -d ", DownloadsDirectory));
+
+            StringBuilder arguments = new StringBuilder(String.Concat(" -x ", MaxConnections, "  -i ", filePath, " -d ", DownloadsDirectory));
 
             AddLogArguments(arguments);
-            
+
             var processStartInfo = GetProcessStartInformation(arguments.ToString());
 
             var downloadProcess = Process.Start(processStartInfo);
@@ -240,19 +240,19 @@ namespace Ishimotto.Core
 
             if (mLogger.IsInfoEnabled)
             {
-                mLogger.InfoFormat("Finish downloaded files from {0}, for download information check aria log",filePath);
+                mLogger.InfoFormat("Finish downloaded files from {0}, for download information check aria log", filePath);
             }
 
             if (DeleteTempFiles)
             {
-            
-                    if (mLogger.IsDebugEnabled)
-                    {
-                        mLogger.DebugFormat("Deleting file {0}",filePath);
-                    }
 
-                    File.Delete(filePath);
-                
+                if (mLogger.IsDebugEnabled)
+                {
+                    mLogger.DebugFormat("Deleting file {0}", filePath);
+                }
+
+                File.Delete(filePath);
+
             }
         }
 
@@ -296,7 +296,7 @@ namespace Ishimotto.Core
         /// <param name="maxConnections"><see cref="MaxConnections"/></param>
         /// <param name="logPath"><see cref="AriaLogPath"/></param>
         /// <param name="severity"><see cref="Severity"/></param>
-        private void HandleArguments(string downloadsDirectory,uint maxConnections, string logPath, AriaSeverity severity)
+        private void HandleArguments(string downloadsDirectory, uint maxConnections, string logPath, AriaSeverity severity)
         {
             HandleDownloadDirectory(downloadsDirectory);
 
@@ -316,7 +316,7 @@ namespace Ishimotto.Core
                 {
                     mLogger.Error("Could not set MaxConnection, The maximum connections value must be grather than zero, MaxConnection will be set to 1");
                 }
-                
+
                 MaxConnections = 1;
             }
 
@@ -347,9 +347,9 @@ namespace Ishimotto.Core
 
                     Severity = AriaSeverity.None;
                 }
-                
+
             }
-            else if(severity == AriaSeverity.None)
+            else if (severity == AriaSeverity.None)
             {
                 if (mLogger.IsWarnEnabled)
                 {
@@ -383,7 +383,7 @@ namespace Ishimotto.Core
             if (!HelperMethods.IsPathValid(logPath))
             {
 
-                if(mLogger.IsErrorEnabled)
+                if (mLogger.IsErrorEnabled)
                 {
                     mLogger.ErrorFormat("The AriaLogPath is invalid, no logs will be written");
                 }
@@ -392,17 +392,7 @@ namespace Ishimotto.Core
 
                 return;
             }
-
-            if (!File.Exists(logPath))
-            {
-                if (mLogger.IsInfoEnabled)
-                {
-                    mLogger.InfoFormat("The file at {0} does not exist, ishimotto will create it",logPath);
-                }
-
-                File.Create(logPath);
-            }
-
+            
             AriaLogPath = logPath;
         }
 
@@ -421,27 +411,26 @@ namespace Ishimotto.Core
                 }
 
                 throw new Exception(String.Format("The path {0} is not valid", downloadsDirectory));
-                
+
             }
 
             //If the directory does not exist, create it
             if (!Directory.Exists(downloadsDirectory))
             {
-      
-                if (mLogger.IsInfoEnabled)
 
+                if (mLogger.IsInfoEnabled)
                 {
-                    mLogger.InfoFormat("The directory at {0} is not exist, ishimotto will create it",downloadsDirectory);
+                    mLogger.InfoFormat("The directory at {0} is not exist, ishimotto will create it", downloadsDirectory);
                 }
                 Directory.CreateDirectory(downloadsDirectory);
 
-               
+
             }
 
             DownloadsDirectory = downloadsDirectory;
         }
 
-         
+
         #endregion
 
         #endregion
