@@ -202,11 +202,11 @@ namespace Ishimotto.Core
 
             IEnumerable<string> filePaths;
 
-            var numOfFiles = Math.Max((urls.Count()/MAX_URLS_IN_FILE),1);
+            var numOfFiles = 1;
 
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {
-                fileWriter.WriteToFiles(urls);
+               fileWriter.WriteToFiles(urls);
 
                 filePaths = fileWriter.FilesPaths;
             }
@@ -264,7 +264,7 @@ namespace Ishimotto.Core
 
                 arguments.Append(AriaLogPath);
 
-                arguments.Append("--log-level=");
+                arguments.Append(" --log-level=");
 
                 arguments.Append(Severity.ToString().ToLower());
             }

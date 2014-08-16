@@ -142,7 +142,7 @@ namespace Ishimotto.Tests
 
             //Act + Assert
 
-            Assert.DoesNotThrow(() => writer.WriteToFiles(null));
+            Assert.Throws<ArgumentNullException>(() => writer.WriteToFiles(null));
 
             AssertFilesDoesNotExists(writer);
 
@@ -180,7 +180,7 @@ namespace Ishimotto.Tests
 
             //Act
 
-            await writer.WriteToFiles(THINGS_TO_WRITE);
+             writer.WriteToFiles(THINGS_TO_WRITE);
 
 
             var result = writer.FilesPaths.Any(path => !File.Exists(path));
@@ -201,7 +201,7 @@ namespace Ishimotto.Tests
 
             //Act
 
-            await fileWriter.WriteToFiles(THINGS_TO_WRITE);
+             fileWriter.WriteToFiles(THINGS_TO_WRITE);
 
             fileWriter.Dispose();
 
@@ -254,7 +254,7 @@ namespace Ishimotto.Tests
             //build the path that should be created
 
 
-            await writer.WriteToFiles(THINGS_TO_WRITE);
+             writer.WriteToFiles(THINGS_TO_WRITE);
 
             var path = Path.Combine(TESTS_DIRECTORY, DUMMY_STRING + "2." + DUMMY_STRING);
 

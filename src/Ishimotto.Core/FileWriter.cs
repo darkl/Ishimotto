@@ -119,7 +119,7 @@ namespace Ishimotto.Core
         /// Write texts to <see cref="FilesPaths"/>, adding perfix and suffix if exists
         /// </summary>
         /// <param name="lines">Lines to write</param>
-        public async Task WriteToFiles(IEnumerable<string> lines)
+        public void WriteToFiles(IEnumerable<string> lines)
         {
 
             //Checking if lines argument is null
@@ -168,15 +168,7 @@ namespace Ishimotto.Core
                 mLogger.InfoFormat("Start splitting {0} lines into {1} files", lines.Count(), mWriters.Length);
             }
 
-            await Task.Factory.StartNew(() =>
-            {
-
-                var x = lines.Count()/mWriters.Length;
-
-
-                var writerIndex = 0;
-
-
+            //TODO: Maybe there is a way to make it parallel with Take and Skip to make it Thread safe
                 foreach (var text in lines)
                 {
                     var line = String.Concat(Perfix, text, Suffix);
@@ -190,12 +182,10 @@ namespace Ishimotto.Core
                         currentWriter.WriteLine(line);
                     }
 
-
-
-                    Interlocked.Increment(ref lineIndex);
+                    lineIndex++;
                 }
             
-                });
+            
 
             if (mLogger.IsDebugEnabled)
             {
