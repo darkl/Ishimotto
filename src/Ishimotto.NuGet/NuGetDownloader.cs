@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Ishimotto.Core;
+using Ishimotto.Core.Legacy;
 using Ishimotto.NuGet.NuGetGallery;
 
 namespace Ishimotto.NuGet

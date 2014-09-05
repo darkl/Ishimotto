@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ishimotto.Core.DownloadStatus
+namespace Ishimotto.Core.Legacy.DownloadStatus
 {
     public class DownloadFailed<T> : DownloadStatus<T>
     {

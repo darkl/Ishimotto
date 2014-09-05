@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Ishimotto.Core;
+using Ishimotto.Core.Aria;
 using log4net.Config;
 using NUnit.Framework;
 
@@ -16,10 +17,10 @@ namespace Ishimotto.Tests
 {
 
     /// <summary>
-    /// Test the functioning of <see cref="FileWriter"/> 
+    /// Test the functioning of <see cref="AriaFilesWriter"/> 
     /// </summary>
     [TestFixture]
-    public class FileWriterTests
+    public class AriaFilesWriterTests
     {
 
         #region Constants
@@ -58,16 +59,16 @@ namespace Ishimotto.Tests
         #endregion
 
         #region Handle Invalid Arguments
+
         [Test]
         public void Check_That_Directory_Is_Created()
         {
-            //Arrange
-
+            // Arrange
             DeleteDirectory();
 
             //Act
 
-            FileWriter writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 2, DUMMY_STRING);
+            AriaFilesWriter writer = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 2, DUMMY_STRING);
 
             bool isDirectoyExist = Directory.Exists(TESTS_DIRECTORY);
 
@@ -84,8 +85,7 @@ namespace Ishimotto.Tests
         {
             //Act + Assert
 
-            Assert.Throws<ArgumentNullException>(() => new FileWriter(null, DUMMY_STRING, 2, DUMMY_STRING));
-
+            Assert.Throws<ArgumentException>(() => new AriaFilesWriter(null, DUMMY_STRING, 2, DUMMY_STRING));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Ishimotto.Tests
         {
 
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 0, DUMMY_STRING));
+                () => new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 0, DUMMY_STRING));
 
         }
 
@@ -102,7 +102,7 @@ namespace Ishimotto.Tests
         {
             //Act + Assert
 
-            Assert.Throws<ArgumentNullException>(() => new FileWriter(TESTS_DIRECTORY, null, 2, DUMMY_STRING));
+            Assert.Throws<ArgumentNullException>(() => new AriaFilesWriter(TESTS_DIRECTORY, null, 2, DUMMY_STRING));
 
         }
 
@@ -111,7 +111,7 @@ namespace Ishimotto.Tests
         {
             //Act + Assert
 
-            Assert.Throws<ArgumentNullException>(() => new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 2, null));
+            Assert.Throws<ArgumentNullException>(() => new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 2, null));
 
         }
 
@@ -128,7 +128,7 @@ namespace Ishimotto.Tests
 
             //Act + Assert
 
-            Assert.Throws<ArgumentException>(() => new FileWriter(invalidDirecotPath, DUMMY_STRING, 1, DUMMY_STRING));
+            Assert.Throws<ArgumentException>(() => new AriaFilesWriter(invalidDirecotPath, DUMMY_STRING, 1, DUMMY_STRING));
 
         }
 
@@ -137,7 +137,7 @@ namespace Ishimotto.Tests
         {
             //Arrange
 
-            var writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+            var writer = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
 
 
             //Act + Assert
@@ -153,12 +153,12 @@ namespace Ishimotto.Tests
         {
             //Arrange
 
-            var writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+            var writer = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
 
 
             //Act + Assert
 
-            Assert.DoesNotThrow(() => writer.WriteToFiles(Enumerable.Empty<string>()));
+            Assert.DoesNotThrow(() => writer.WriteToFiles(new string[0]));
 
             writer.Dispose();
 
@@ -175,7 +175,7 @@ namespace Ishimotto.Tests
         {
             //Arrange
 
-            FileWriter writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+            AriaFilesWriter writer = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
 
 
             //Act
@@ -197,7 +197,7 @@ namespace Ishimotto.Tests
         {
             //Arrange
 
-            var fileWriter = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+            var fileWriter = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
 
             //Act
 
@@ -224,10 +224,10 @@ namespace Ishimotto.Tests
         }
 
         /// <summary>
-        /// Checks that all the paths of <see cref="FileWriter.FilesPaths"/> does not exist in <see cref="TESTS_DIRECTORY"/>
+        /// Checks that all the paths of <see cref="AriaFilesWriter.FilesPaths"/> does not exist in <see cref="TESTS_DIRECTORY"/>
         /// </summary>
         /// <param name="writer"></param>
-        private  static void AssertFilesDoesNotExists(FileWriter writer)
+        private static void AssertFilesDoesNotExists(AriaFilesWriter writer)
         {
             foreach (var path in writer.FilesPaths)
             {
@@ -249,7 +249,7 @@ namespace Ishimotto.Tests
 
             //Act 
 
-            FileWriter writer = new FileWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
+            AriaFilesWriter writer = new AriaFilesWriter(TESTS_DIRECTORY, DUMMY_STRING, 1, DUMMY_STRING);
 
             //build the path that should be created
 

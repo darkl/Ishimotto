@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ishimotto.Core;
+using Ishimotto.Core.Aria;
 
 namespace Ishimotto.Console
 {
-    class IshimottoConfig : ConfigurationSection
+    public class IshimottoConfig : ConfigurationSection
     {
-
         public static IshimottoConfig GetConfig()
         {
             return (IshimottoConfig)ConfigurationManager.GetSection("ishimottoConfig") ?? new IshimottoConfig();
         }
-
 
         [ConfigurationProperty("DownloadsDirectory")]
         public string DownloadsDirectory
@@ -36,7 +31,6 @@ namespace Ishimotto.Console
             }
         }
 
-
         [ConfigurationProperty("AriaLogPath")]
         public string AriaLogPath
         {
@@ -46,7 +40,6 @@ namespace Ishimotto.Console
             }
         }
 
-
         [ConfigurationProperty("AriaLogLevel")]
         public AriaSeverity AriaLogLevel
         {
@@ -54,7 +47,7 @@ namespace Ishimotto.Console
             {
                 AriaSeverity severity;
 
-                if (AriaSeverity.TryParse(this["AriaLogLevel"].ToString(), out severity))
+                if (Enum.TryParse(this["AriaLogLevel"].ToString(), out severity))
                 {
                     return severity;
                 }
@@ -63,13 +56,12 @@ namespace Ishimotto.Console
             }
         }
 
-
         [ConfigurationProperty("MaxConnections")]
-        public uint MaxConnections
+        public int MaxConnections
         {
             get
             {
-                return uint.Parse(this["MaxConnections"].ToString());
+                return int.Parse(this["MaxConnections"].ToString());
             }
         }
 
@@ -82,7 +74,6 @@ namespace Ishimotto.Console
             }
         }
 
-
         [ConfigurationProperty("LastFetchFileName")]
         public string LastFetchFileName
         {
@@ -92,13 +83,15 @@ namespace Ishimotto.Console
             }
         }
 
+        // TODO: Return to here when done.
         public DateTime LastFetchTime
         {
             get
             {
                 DateTime lastFetchTime;
 
-                var filePath = LastFetchFileName;
+                string filePath = LastFetchFileName;
+
                 if (!File.Exists(filePath))
                 {
                     File.Create(filePath);
@@ -106,8 +99,7 @@ namespace Ishimotto.Console
                     return DateTime.Now.AddMonths(-1);
                 }
 
-
-                    using (StreamReader reader = new StreamReader(filePath))
+                using (StreamReader reader = new StreamReader(filePath))
                 {
                     lastFetchTime = DateTime.Parse(reader.ReadLine());
                 }
@@ -116,15 +108,11 @@ namespace Ishimotto.Console
             }
             set
             {
-
                 using (StreamWriter writer = new StreamWriter(LastFetchFileName))
                 {
                     writer.Write(value.ToShortDateString());
                 }
-
             }
         }
     }
-
-
 }

@@ -1,4 +1,4 @@
-﻿namespace Ishimotto.Core
+﻿namespace Ishimotto.Core.Legacy
 {
     public class PendingDownload<T>
     {

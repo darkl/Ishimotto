@@ -8,9 +8,9 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-using Ishimotto.Core.DownloadStatus;
+using Ishimotto.Core.Legacy.DownloadStatus;
 
-namespace Ishimotto.Core
+namespace Ishimotto.Core.Legacy
 {
     public abstract class Downloader<T>
     {

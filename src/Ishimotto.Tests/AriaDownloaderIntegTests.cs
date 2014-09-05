@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Ishimotto.Core;
+using Ishimotto.Core.Aria;
 using log4net.Config;
 using NUnit.Framework;
 
@@ -115,7 +113,7 @@ namespace Ishimotto.Tests
 
             //Act 
 
-            downloader.Download(urls);
+            downloader.Download(urls.ToList());
 
             var tempFilePath = Path.Combine(DOWNLOADS_DIRECTORY, "links1.txt");
 
@@ -152,7 +150,7 @@ namespace Ishimotto.Tests
 
             //Act 
 
-            downloader.Download(urls);
+            downloader.Download(urls.ToList());
 
 
             //Assert

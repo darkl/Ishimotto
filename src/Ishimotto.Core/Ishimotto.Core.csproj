@@ -57,14 +57,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AriaDownloader.cs" />
-    <Compile Include="Downloader.cs" />
-    <Compile Include="DownloadStatus\DownloadComplete.cs" />
-    <Compile Include="DownloadStatus\DownloadFailed.cs" />
-    <Compile Include="DownloadStatus\DownloadStatus.cs" />
-    <Compile Include="HelperMethods.cs" />
-    <Compile Include="FileWriter.cs" />
-    <Compile Include="PendingDownload.cs" />
+    <Compile Include="Aria\AriaDownloader.cs" />
+    <Compile Include="Aria\AriaSeverity.cs" />
+    <Compile Include="Legacy\Downloader.cs" />
+    <Compile Include="Legacy\DownloadStatus\DownloadComplete.cs" />
+    <Compile Include="Legacy\DownloadStatus\DownloadFailed.cs" />
+    <Compile Include="Legacy\DownloadStatus\DownloadStarted.cs" />
+    <Compile Include="Legacy\DownloadStatus\DownloadStatus.cs" />
+    <Compile Include="Aria\HelperMethods.cs" />
+    <Compile Include="Aria\AriaFilesWriter.cs" />
+    <Compile Include="Legacy\PendingDownload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

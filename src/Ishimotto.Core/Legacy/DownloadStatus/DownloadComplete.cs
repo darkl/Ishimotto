@@ -1,4 +1,4 @@
-﻿namespace Ishimotto.Core.DownloadStatus
+﻿namespace Ishimotto.Core.Legacy.DownloadStatus
 {
     public class DownloadComplete<T> : DownloadStatus<T>
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Ishimotto.Core;
+using Ishimotto.Core.Aria;
 using log4net.Config;
 using NUnit.Framework;
 
@@ -56,7 +56,7 @@ namespace Ishimotto.Tests
 
             //Act + Assert
 
-            Assert.Throws<Exception>(() => new AriaDownloader(invalidPath));
+            Assert.Throws<ArgumentException>(() => new AriaDownloader(invalidPath));
         }
 
         [Test]
