@@ -7,7 +7,12 @@ namespace Ishimotto.NuGet
 {
     public class NuGetQuerier
     {
-        private readonly FeedContext_x0060_1 mFeedContext = new FeedContext_x0060_1(new Uri("http://www.nuget.org/api/v2/"));
+        private readonly V2FeedContext mFeedContext;
+
+        public NuGetQuerier(string nugetUrl)
+        {
+            mFeedContext = new V2FeedContext(new Uri(nugetUrl));
+        }
 
         public IEnumerable<V2FeedPackage> FetchFrom(TimeSpan timespan, int pageSize = 40)
         {
@@ -25,12 +30,12 @@ namespace Ishimotto.NuGet
                 from package in mFeedContext.Packages
                 where package.Published >= startTime &&
                       !package.IsPrerelease
+                      && package.IsLatestVersion // We don't want only the latest version
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);
         }
-
-
+        
         public IEnumerable<V2FeedPackage> FetchEverything(int pageSize, TimeSpan timeout)
         {
             var query =
@@ -57,23 +62,6 @@ namespace Ishimotto.NuGet
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);
-        }
-
-        public IEnumerable<V2FeedPackage> FetchAll(HashSet<string> dependencies, int pageSize, TimeSpan timeout)
-        {
-            foreach (string dependency in dependencies)
-            {
-                var query =
-                    from package in mFeedContext.Packages
-                    where !package.IsPrerelease &&
-                          package.Id == dependency
-                    select package;
-
-                foreach (V2FeedPackage v2FeedPackage in new NuGetFetcher(query, pageSize, timeout))
-                {
-                    yield return v2FeedPackage;
-                }
-            }
         }
     }
 }
