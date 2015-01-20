@@ -13,7 +13,7 @@ using log4net.Config;
 
 namespace Ishimotto.Console
 {
-   
+
     internal class Program
     {
         private static ILog logger;
@@ -26,11 +26,8 @@ namespace Ishimotto.Console
             logger = LogManager.GetLogger("Ishimotto.Console.Program");
 
             AppDomain.CurrentDomain.UnhandledException += LogUnhandledException;
-            
-            if (logger.IsDebugEnabled)
-            {
-                logger.Debug("Start Ishimotto process");
-            }
+
+            logger.Debug("Start Ishimotto process");
 
             var ishimottoSettings = IshimottoConfig.GetConfig();
 
@@ -38,29 +35,21 @@ namespace Ishimotto.Console
 
             NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
 
-
-            if (logger.IsInfoEnabled)
-            {
-                logger.Info("quering NuGet to get packages inforamtion");
-            }
-
+            logger.Info("quering NuGet to get packages inforamtion");
+            
             var result =
-                querier.FetchFrom(ishimottoSettings.LastFetchTime);
+                 querier.FetchFrom(ishimottoSettings.LastFetchTime);
 
 
-            var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl)).ToList();
+        var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
 
             if (logger.IsInfoEnabled)
             {
                 logger.InfoFormat("{0} packages returned", links.Count());
             }
 
-
-            if (logger.IsInfoEnabled)
-            {
-                logger.Info("Start downloading packages");
-            }
-
+            logger.Info("Start downloading packages");
+            
             AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadsDirectory, ishimottoSettings.DeleteTempFiles, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath, ishimottoSettings.AriaLogLevel);
 
 
@@ -83,9 +72,9 @@ namespace Ishimotto.Console
         /// <param name="e"></param>
         private static void LogUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            logger.Fatal("An unhandled exception occured",e.ExceptionObject as Exception);
+            logger.Fatal("An unhandled exception occured", e.ExceptionObject as Exception);
         }
-        
+
 
 
     }
