@@ -150,31 +150,22 @@ namespace Ishimotto.Core
         {
             if (urls == null)
             {
-                if (mLogger.IsFatalEnabled)
-                {
                     mLogger.Fatal("Got null as url's to download");
-                }
-
+               
                 throw new ArgumentException("The urls argument can not be null");
             }
 
             if (!urls.Any())
             {
-                if (mLogger.IsWarnEnabled)
-                {
                     mLogger.Warn("No files to download . . . cycle is done");
-                }
-            }
+               }
 
             if (mLogger.IsInfoEnabled)
             {
                 mLogger.InfoFormat("Start downloading {0} file(s)", urls.Count());
             }
 
-            if (mLogger.IsDebugEnabled)
-            {
                 mLogger.Debug("splitting the urls into files");
-            }
 
             var paths = CreateLinkFiles(urls);
 

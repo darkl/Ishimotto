@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ishimotto.NuGet.Dependencies;
+using Ishimotto.NuGet.NuGetDependencies;
 using NUnit.Framework;
 
 namespace Ishimotto.NuGet.Tests

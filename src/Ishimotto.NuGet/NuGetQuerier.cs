@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ishimotto.NuGet.NuGetDependencies;
 using Ishimotto.NuGet.NuGetGallery;
 
 namespace Ishimotto.NuGet
@@ -35,13 +36,13 @@ namespace Ishimotto.NuGet
 
             return new NuGetFetcher(query, pageSize, timeout);
         }
-        
+
         public IEnumerable<V2FeedPackage> FetchEverything(int pageSize, TimeSpan timeout)
         {
             var query =
                 from package in mFeedContext.Packages
                 where package.IsLatestVersion && package.Dependencies.Length > 0
-                orderby package.DownloadCount descending 
+                orderby package.DownloadCount descending
                 select package;
 
             return new NuGetFetcher(query, pageSize, timeout);
@@ -79,6 +80,18 @@ namespace Ishimotto.NuGet
                     yield return v2FeedPackage;
                 }
             }
+        }
+
+        public IEnumerable<V2FeedPackage> FetchSpecific(IEnumerable<NuGetDependency> depndenciesToFetch)
+        {
+
+
+            //TODO: maybe there is a better solution???
+            return  mFeedContext.Packages.Where(package => depndenciesToFetch.Where(
+                                                                    dependency => dependency.PackageId == package.Id).Any(dependency => dependency.Version == package.Version));
+
+                
+
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ishimotto.NuGet.Dependencies
+namespace Ishimotto.NuGet.NuGetDependencies
 {
     /// <summary>
     /// Helper to get the package depndencies

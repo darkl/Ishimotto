@@ -125,29 +125,20 @@ namespace Ishimotto.Core
             //Checking if lines argument is null
             if (lines == null)
             {
-                if (mLogger.IsErrorEnabled)
-                {
-                    mLogger.Error("The lines argument is null, no further actions will take place");
 
-                    throw new ArgumentNullException("The lines argument can not be null");
-                }
+                mLogger.Error("The lines argument is null, no further actions will take place");
+
+                throw new ArgumentNullException("The lines argument can not be null");
             }
 
             //Checking if there anything to write
             if (!lines.Any())
             {
-                if (mLogger.IsWarnEnabled)
-                {
-                    mLogger.Warn("The lines Enumrable is empty, no further actions will take place");
-                }
-
+                mLogger.Warn("The lines Enumrable is empty, no further actions will take place");
                 return;
             }
 
-            if (mLogger.IsDebugEnabled)
-            {
-                mLogger.Debug("Start writing lines to files");
-            }
+            mLogger.Debug("Start writing lines to files");
 
 
             if (!mAreStreamInitialized)
@@ -163,34 +154,23 @@ namespace Ishimotto.Core
             int lineIndex = 0;
 
 
-            if (mLogger.IsInfoEnabled)
-            {
-                mLogger.InfoFormat("Start splitting {0} lines into {1} files", lines.Count(), mWriters.Length);
-            }
+            mLogger.InfoFormat("Start splitting {0} lines into {1} files", lines.Count(), mWriters.Length);
 
             //TODO: Maybe there is a way to make it parallel with Take and Skip to make it Thread safe
-                foreach (var text in lines)
-                {
-                    var line = String.Concat(Perfix, text, Suffix);
-
-
-                    lock (lines)
-                    {
-                        var currentWriter = mWriters[lineIndex%mWriters.Length];
-
-
-                        currentWriter.WriteLine(line);
-                    }
-
-                    lineIndex++;
-                }
-            
-            
-
-            if (mLogger.IsDebugEnabled)
+            foreach (var text in lines)
             {
-                mLogger.Debug("finsidh spliting lines to files");
+                var line = String.Concat(Perfix, text, Suffix);
+
+                lock (lines)
+                {
+                    var currentWriter = mWriters[lineIndex % mWriters.Length];
+
+                    currentWriter.WriteLine(line);
+                }
+
+                lineIndex++;
             }
+            mLogger.Debug("finsidh spliting lines to files");
         }
 
         /// <summary>
@@ -198,12 +178,7 @@ namespace Ishimotto.Core
         /// </summary>
         public void Dispose()
         {
-
-
-            if (mLogger.IsDebugEnabled)
-            {
-                mLogger.Debug("Disposing Writers");
-            }
+            mLogger.Debug("Disposing Writers");
 
             var writersToDispose = mWriters.Where(writer => writer != null);
             foreach (var streamWriter in writersToDispose)
@@ -225,22 +200,14 @@ namespace Ishimotto.Core
             {
                 var arumentException = new ArgumentException("The output directory consist of invalid chars");
 
-                if (mLogger.IsFatalEnabled)
-                {
-                    mLogger.Fatal("Could not create output directory", arumentException);
-
-                }
+                mLogger.Fatal("Could not create output directory", arumentException);
 
                 throw arumentException;
             }
 
             if (!Directory.Exists(mOutputDirectory))
             {
-
-                if (mLogger.IsInfoEnabled)
-                {
-                    mLogger.InfoFormat("The directory at {0} does not exist, ishimotto will create the directory", mOutputDirectory);
-                }
+                mLogger.InfoFormat("The directory at {0} does not exist, ishimotto will create the directory", mOutputDirectory);
 
                 Directory.CreateDirectory(mOutputDirectory);
             }
@@ -270,10 +237,7 @@ namespace Ishimotto.Core
 
                     filePath = Path.Combine(mOutputDirectory, String.Concat(mFileName, index, ".", Extension));
 
-                    if (mLogger.IsInfoEnabled)
-                    {
-                        mLogger.InfoFormat("The file {0} already exist, tring to create file {1}", previousFilePath, filePath);
-                    }
+                    mLogger.InfoFormat("The file {0} already exist, tring to create file {1}", previousFilePath, filePath);
                 }
 
                 files.Add(filePath);
@@ -289,16 +253,12 @@ namespace Ishimotto.Core
         /// </summary>
         private void InitializeWriters()
         {
-
             for (int writerPosition = 0; writerPosition < mWriters.Length; writerPosition++)
             {
-
                 mWriters[writerPosition] = new StreamWriter(mFilePaths[writerPosition], false);
-
             }
 
             mAreStreamInitialized = true;
-
         }
 
         /// <summary>
@@ -309,18 +269,13 @@ namespace Ishimotto.Core
         /// <param name="extension"><see cref="Extension"/></param>
         private void ValidateArguemnts(string fileName, int numOfFiles, string extension)
         {
-
             Exception exception = null;
 
             if (String.IsNullOrEmpty(fileName))
             {
-
                 exception = new ArgumentNullException("The file name can not be null");
 
-                if (mLogger.IsFatalEnabled)
-                    mLogger.Fatal("The given file name is null", exception);
-
-
+                mLogger.Fatal("The given file name is null", exception);
             }
 
             if (String.IsNullOrEmpty(extension))
@@ -328,18 +283,14 @@ namespace Ishimotto.Core
 
                 exception = new ArgumentNullException("The extension can not be null");
 
-                if (mLogger.IsFatalEnabled)
-                    mLogger.Fatal("The given extension is null", exception);
-
+                mLogger.Fatal("The given extension is null", exception);
             }
 
             if (numOfFiles <= 0)
             {
-
                 exception = new ArgumentOutOfRangeException("The numOfFiles nust be grather than 0");
 
-                if (mLogger.IsFatalEnabled)
-                    mLogger.Fatal("InvalidParameter: numOfFiles", exception);
+                mLogger.Fatal("InvalidParameter: numOfFiles", exception);
             }
 
 

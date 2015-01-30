@@ -75,8 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dependencies\Dependency.cs" />
-    <Compile Include="Dependencies\NuGetDependencyExtractor.cs" />
+    <Compile Include="NuGetDependencies\Dependency.cs" />
+    <Compile Include="NuGetDependencies\NuGetDependenciesFetcher.cs" />
+    <Compile Include="NuGetDependencies\NuGetDependenciesContainer.cs" />
+    <Compile Include="NuGetDependencies\NuGetDependencyExtractor.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetQuerier.cs" />
     <Compile Include="NuGetFetcher.cs" />

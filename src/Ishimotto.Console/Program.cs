@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml;
 using Ishimotto.Core;
 using Ishimotto.NuGet;
-using Ishimotto.NuGet.NuGetGallery;
 using log4net;
 using log4net.Config;
 
@@ -41,7 +36,7 @@ namespace Ishimotto.Console
                  querier.FetchFrom(ishimottoSettings.LastFetchTime);
 
 
-        var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
+          var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
 
             if (logger.IsInfoEnabled)
             {
@@ -55,12 +50,9 @@ namespace Ishimotto.Console
 
             downloader.Download(links);
 
-            if (logger.IsDebugEnabled)
-            {
+            
                 logger.Debug("Finish isimotto process");
-            }
-
-
+            
             ishimottoSettings.LastFetchTime = DateTime.Now;
 
         }

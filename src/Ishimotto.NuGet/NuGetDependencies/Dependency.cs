@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
 
-namespace Ishimotto.NuGet.Dependencies
+namespace Ishimotto.NuGet.NuGetDependencies
 {
     /// <summary>
     /// Basic implemntation of <see cref="INuGetDependency"/>
