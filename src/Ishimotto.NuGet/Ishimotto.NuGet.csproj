@@ -44,6 +44,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Services.Client.5.3.0\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Web.XmlTransform">
+      <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
+    </Reference>
+    <Reference Include="NuGet.Core, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NuGet.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.1.30214.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -76,12 +83,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NuGetDependencies\Dependency.cs" />
-    <Compile Include="NuGetDependencies\NuGetDependenciesFetcher.cs" />
     <Compile Include="NuGetDependencies\NuGetDependenciesContainer.cs" />
     <Compile Include="NuGetDependencies\NuGetDependencyExtractor.cs" />
+    <Compile Include="NuGetDependencies\PackageDto.cs" />
+    <Compile Include="NuGetDependencies\PackageExtentions.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetQuerier.cs" />
     <Compile Include="NuGetFetcher.cs" />
+    <Compile Include="PackageManagerDownloader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\NuGetGallery\Reference.cs">
       <AutoGen>True</AutoGen>

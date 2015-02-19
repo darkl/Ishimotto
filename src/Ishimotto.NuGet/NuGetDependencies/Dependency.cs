@@ -18,7 +18,7 @@ namespace Ishimotto.NuGet.NuGetDependencies
 
             if (args.Length < 1)
             {
-                throw new ArgumentException("Parameter string NuGetDependency is not format well, format should be [PackageID:PackageVersion]");
+                throw new ArgumentException("Parameter string NuGetDependency is not format well, format should be [ID:PackageVersion]");
             }
 
             PackageId = args[0];
