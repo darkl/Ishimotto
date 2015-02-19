@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ishimotto.NuGet.NuGetDependencies;
 using Ishimotto.NuGet.NuGetGallery;
 
 namespace Ishimotto.NuGet
@@ -81,17 +80,6 @@ namespace Ishimotto.NuGet
                 }
             }
         }
-
-        public IEnumerable<V2FeedPackage> FetchSpecific(IEnumerable<NuGetDependency> depndenciesToFetch)
-        {
-
-
-            //TODO: maybe there is a better solution???
-            return  mFeedContext.Packages.Where(package => depndenciesToFetch.Where(
-                                                                    dependency => dependency.PackageId == package.Id).Any(dependency => dependency.Version == package.Version));
-
-                
-
-        }
+        
     }
 }

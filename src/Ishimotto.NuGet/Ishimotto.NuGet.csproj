@@ -47,6 +47,12 @@
     <Reference Include="Microsoft.Web.XmlTransform">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.10.0\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.10.0\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="NuGet.Core, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NuGet.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
@@ -82,11 +88,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NuGetDependencies\Dependency.cs" />
-    <Compile Include="NuGetDependencies\NuGetDependenciesContainer.cs" />
-    <Compile Include="NuGetDependencies\NuGetDependencyExtractor.cs" />
-    <Compile Include="NuGetDependencies\PackageDto.cs" />
-    <Compile Include="NuGetDependencies\PackageExtentions.cs" />
+    <Compile Include="Dependencies\Repositories\IDependenciesRepostory.cs" />
+    <Compile Include="Dependencies\PackageDto.cs" />
+    <Compile Include="Dependencies\PackageExtentions.cs" />
+    <Compile Include="Dependencies\Repositories\MongoDepndnciesRepository.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetQuerier.cs" />
     <Compile Include="NuGetFetcher.cs" />

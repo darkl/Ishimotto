@@ -19,13 +19,7 @@ namespace Ishimotto.Console
 
         private static void Main(string[] args)
         {
-            XmlConfigurator.Configure();
-
-            logger = LogManager.GetLogger("Ishimotto.Console.Program");
-
-            AppDomain.CurrentDomain.UnhandledException += LogUnhandledException;
-
-            logger.Debug("Start Ishimotto process");
+            InitializeLogger();
 
             var ishimottoSettings = IshimottoConfig.GetConfig();
 
@@ -57,7 +51,18 @@ namespace Ishimotto.Console
 
         }
 
-       /// <summary>
+        private static void InitializeLogger()
+        {
+            XmlConfigurator.Configure();
+
+            logger = LogManager.GetLogger("Ishimotto.Console.Program");
+
+            AppDomain.CurrentDomain.UnhandledException += LogUnhandledException;
+
+            logger.Debug("Start Ishimotto process");
+        }
+
+        /// <summary>
         /// Logging the exception before terminating the program
         /// </summary>
         /// <param name="sender"></param>

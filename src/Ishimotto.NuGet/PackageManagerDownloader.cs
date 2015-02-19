@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Ishimotto.NuGet.NuGetDependencies;
-using Ishimotto.NuGet.NuGetGallery;
+using Ishimotto.NuGet.Dependencies;
+using Ishimotto.NuGet.Dependencies.Repositories;
 using NuGet;
 
 namespace Ishimotto.NuGet
@@ -28,7 +25,7 @@ namespace Ishimotto.NuGet
         /// <summary>
         /// Dependencies repository to prevent download of unnecessary packages
         /// </summary>
-        private INuGetDependenciesRepostory mDependenciesRepostory;
+        private IDependenciesRepostory mDependenciesRepostory;
 
         #endregion
 
@@ -40,7 +37,7 @@ namespace Ishimotto.NuGet
         /// <param name="nugetRepository">path to the source NuGet repository (NuGet website)</param>
         /// <param name="localRepository">path to the destenation repository</param>
         /// <param name="dependenciesRepostory">Entity to check if package's depndencies are needed</param>
-        public PackageManagerDownloader(string nugetRepository, string localRepository, INuGetDependenciesRepostory dependenciesRepostory = null)
+        public PackageManagerDownloader(string nugetRepository, string localRepository, IDependenciesRepostory dependenciesRepostory = null)
         {
             mPackageManager = new PackageManager(PackageRepositoryFactory.Default.CreateRepository(nugetRepository), localRepository);
 
@@ -55,7 +52,7 @@ namespace Ishimotto.NuGet
         {
             var dependnciesToDownload = from set in e.Package.DependencySets
                                         from depndency in set.Dependencies
-                                        where mDependenciesRepostory.IsExist(depndency)
+                                        where mDependenciesRepostory.ShouldDownload(depndency)
                                         select depndency.ToDto();
 
             await mDependenciesRepostory.AddDepndencies(
