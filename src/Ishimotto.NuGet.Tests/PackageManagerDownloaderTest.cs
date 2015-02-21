@@ -16,6 +16,9 @@ using NUnit.Framework;
 namespace Ishimotto.NuGet.Tests
 {
 
+    /// <summary>
+    /// Tests for <see cref="PackageManagerDownloader"/>
+    /// </summary>
     [TestFixture]
     internal class PackageManagerDownloaderTest
     {
@@ -26,23 +29,45 @@ namespace Ishimotto.NuGet.Tests
 
         //Todo: Arrange configuration (maybe search package like Infra.Configuration
 
-
+        #region Consts
+        /// <summary>
+        /// Ralative path to the tests directory to create (creating relativly to <see cref="Environment.CurrentDirectory"/>
+        /// </summary>
         public const string TESTS_DITRECTORY_NAME = @"Tests";
 
+        /// <summary>
+        /// Ralative path to the localrepository directory to create (creating relativly to <see cref="Environment.CurrentDirectory"/>
+        /// </summary>
         public const string LOCAL_REPOSITORY_PERFIX = @"Tests\Local";
 
+        /// <summary>
+        /// Ralative path to the remote directory to create (creating relativly to <see cref="Environment.CurrentDirectory"/>
+        /// </summary>
         public const string REMOTE_DIRECTORY_PERFIX = @"Tests\Remote";
 
-        public const string REMOTE_NUGET_REPOSITORY = @"https://www.nuget.org/api/v2/"; 
+        /// <summary>
+        /// Path to NuGetGallery repository
+        /// </summary>
+        public const string REMOTE_NUGET_REPOSITORY = @"https://www.nuget.org/api/v2/";
 
-        private const string PACKAGE_WITH_DEPENDENCIES_ID = "rx-main";
+        /// <summary>
+        /// Name of package that contains dependencies 
+        /// </summary>
+        private const string PACKAGE_WITH_DEPENDENCIES_ID = "Microsoft.AspNet.Mvc";
 
-        private static readonly IEnumerable<string> DEPNDENDCIES_LIST = new[] {"Rx-Interfaces", "Rx-Core", "Rx-Linq", "Rx-PlatformServices"};
+        /// <summary>
+        /// The version of <see cref="PACKAGE_WITH_DEPENDENCIES_ID"/>
+        /// </summary>
+        private const string PACKAGE_VERSION = "5.2.3";
+
+        /// <summary>
+        /// Collection of the depndencies of <see cref="PACKAGE_WITH_DEPENDENCIES_ID"/>
+        /// </summary>
+        private static readonly IEnumerable<string> DEPNDENDCIES_LIST = new[] { "Microsoft.AspNet.WebPages", "Microsoft.Web.Infrastructure", "Microsoft.AspNet.Razor"}; 
+        #endregion
 
         private PackageManagerDownloader mDownloader;
         
-
-
         [SetUp]
         public void Init()
         {
@@ -52,7 +77,7 @@ namespace Ishimotto.NuGet.Tests
 
             var remoteRepository = REMOTE_NUGET_REPOSITORY;
 
-            mDownloader = new PackageManagerDownloader(remoteRepository, localRepository);
+            mDownloader = new PackageManagerDownloader(remoteRepository, localRepository,null);
         }
 
         private static void SetupTestDirectory()
@@ -104,10 +129,10 @@ namespace Ishimotto.NuGet.Tests
 
             var files = Directory.GetFiles(LOCAL_REPOSITORY_PERFIX, "*.nupkg", SearchOption.AllDirectories);
 
-            Assert.That(files.Length,Is.EqualTo(expectedFiles.Length), "pakages in repository: " + string.Join(",", files));
+            Assert.That(files.Length,Is.EqualTo(expectedFiles.Length), "pakages in repository: " + string.Join(",", files.Select(file => file.Substring(file.LastIndexOf(@"\")))));
             foreach (var expectedFile in expectedFiles)
             {
-                Assert.IsTrue(files.Any(filePath => filePath.ToLower().Contains(expectedFile.ToLower())),expectedFile);
+                Assert.IsTrue(files.Any(filePath => filePath.ToLower().Contains(expectedFile.ToLower())),"Missing package id: " + expectedFile);
             }
 
         }
@@ -191,7 +216,7 @@ namespace Ishimotto.NuGet.Tests
 
             //Act
 
-            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID, "2.2.5"));
+            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID, PACKAGE_VERSION));
 
             await mDownloader.Dispose();
 
@@ -256,7 +281,7 @@ namespace Ishimotto.NuGet.Tests
 
             //Act
 
-            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID, "2.2.5"));
+            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID,PACKAGE_VERSION));
 
             await mDownloader.Dispose();
             

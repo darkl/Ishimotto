@@ -27,16 +27,6 @@ namespace Ishimotto.NuGet.Dependencies
         /// Creates new instance of <see cref="PackageDto"/> 
         /// </summary>
         /// <param name="package">package to extract info from</param>
-        internal PackageDto(PackageDependency package)
-            : this(package.Id,package.VersionSpec.MaxVersion)
-        {
-            
-        }
-
-        /// <summary>
-        /// Creates new instance of <see cref="PackageDto"/> 
-        /// </summary>
-        /// <param name="package">package to extract info from</param>
         internal PackageDto(IPackageName package)
             : this(package.Id, package.Version)
         {

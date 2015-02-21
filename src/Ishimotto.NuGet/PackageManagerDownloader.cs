@@ -17,10 +17,8 @@ namespace Ishimotto.NuGet
     /// <remarks>
     /// This downaloader download's packages (including their dependencies) using the NuGet's <see cref="PackageManager"/>
     /// </remarks>
-    public class PackageManagerDownloader 
+    public class PackageManagerDownloader
     {
-
-        //Todo: create a const named TEMP
 
         #region Data Members
         /// <summary>
@@ -33,11 +31,26 @@ namespace Ishimotto.NuGet
         /// </summary>
         public IDependenciesRepostory DependenciesRepostory { get; internal set; }
 
-        private ILog mLogger;
-        
+        /// <summary>
+        /// Path to the repository of the downloaded packages
+        /// </summary>
         private string mLocalRepository;
 
+        private ILog mLogger;
 
+        #endregion
+
+        #region Consts
+
+        /// <summary>
+        /// Perfix for the working directory (local to the <see cref="mLocalRepository"/>
+        /// </summary>
+        private const string TEMP_DIRECTORY_NAME = "Temp";
+
+        /// <summary>
+        /// Max retries to download a package
+        /// </summary>
+        private const int MAX_RETRIES = 5;
 
         #endregion
 
@@ -51,10 +64,9 @@ namespace Ishimotto.NuGet
         /// <param name="dependenciesRepostory">Entity to check if package's depndencies are needed</param>
         public PackageManagerDownloader(string nugetRepository, string localRepository, IDependenciesRepostory dependenciesRepostory)
         {
-
             mLogger = LogManager.GetLogger(typeof(PackageManagerDownloader).Name);
 
-            mPackageManager = new PackageManager(PackageRepositoryFactory.Default.CreateRepository(nugetRepository), Path.Combine(localRepository, "Temp"));
+            mPackageManager = new PackageManager(PackageRepositoryFactory.Default.CreateRepository(nugetRepository), Path.Combine(localRepository, TEMP_DIRECTORY_NAME));
 
             mPackageManager.LocalRepository.PackageSaveMode = PackageSaveModes.Nupkg;
 
@@ -65,23 +77,10 @@ namespace Ishimotto.NuGet
             mLocalRepository = localRepository;
         }
 
-
-        internal async void DownloadDependencies(object sender, PackageOperationEventArgs e)
-        {
-            var dependnciesToDownload = from set in e.Package.DependencySets
-                                        from depndency in set.Dependencies
-                                        where DependenciesRepostory.ShouldDownload(depndency)
-                                        select depndency.ToDto();
-
-            if (!dependnciesToDownload.IsEmpty())
-            {
-                
-                await DownloadPackagesAsync(dependnciesToDownload);
-            }
-        }
         #endregion
 
         #region Public Methods
+
         /// <summary>
         /// Download packages including their dependencies
         /// </summary>
@@ -94,90 +93,64 @@ namespace Ishimotto.NuGet
 
             if (mLogger.IsDebugEnabled)
             {
-                mLogger.DebugFormat("Downloading the following packages : {0}",String.Join(", ",packages.Select(package => package.ID)));
+                mLogger.DebugFormat("Downloading the following packages : {0}", String.Join(", ", packages.Select(package => package.ID)));
             }
 
-            //foreach (var package in packages)
-            //{
-            //    mPackageManager.InstallPackage(package.ID, package.Version, true, false);
-            //}
-
             Parallel.ForEach(packages, package => DownloadPackageAsync(package, false));
-
-        }
-
-        private Task CopyFilesToLocalRepository()
-        {
-            mLogger.Info("Copying packages from Temp folder to local repository");
-
-            return Task.Run(() =>
-            {
-                var files = new DirectoryInfo(mPackageManager.LocalRepository.Source).EnumerateFiles("*.nupkg",
-                    SearchOption.AllDirectories);
-
-                foreach (var file in files)
-                {
-                    file.CopyTo(Path.Combine(mLocalRepository, file.Name));
-                }
-
-            });
-
-
         }
 
         public async Task DownloadPackageAsync(PackageDto package, bool addToRepository = true)
         {
-            
             if (addToRepository)
             {
                 await DependenciesRepostory.AddDependnecyAsync(package);
             }
 
-            var times = 0;
+            var attempt = 1;
 
             bool isDownloadComplete = false;
 
-            while (!isDownloadComplete && times < 5)
+            while (!isDownloadComplete && attempt < MAX_RETRIES)
             {
+
                 try
                 {
-                    mLogger.Debug("Downloading package: " + package.ID);
+                    mLogger.Info("Downloading package: " + package.ID);
 
                     mPackageManager.InstallPackage(package.ID, package.Version, true, false);
                     isDownloadComplete = true;
                 }
-                catch (WebException) //The PackageManagerDownloader sometimes loose connection with the remote host, I saperate the exception in order to keep the logs clean
-                {
-                    times++;
-
-                    var message = "Failed to connect to remote NuGet host";
-
-                    if (times < 5)
-                    {
-                        message += "try again in 5 seconds";
-                    }
-                    
-                    mLogger.Debug(message);
-                    
-                }
 
                 catch (Exception ex)
                 {
-                    times++;
+                    string errorMessage = "Failed to download package due to unknown error, tring again in 5 seconds";
 
-                    mLogger.Error("Failed to download package due to unknown error, tring again in 5 seconds",ex);
+                    if (attempt < MAX_RETRIES)
+                    {
+                        errorMessage += ", try again in 5 seconds";
+                    }
+
+                    mLogger.Warn(errorMessage);
 
                     Task.Delay(TimeSpan.FromSeconds(5)).Wait();
                 }
             }
 
-            if (times == 5)
+            if (attempt == MAX_RETRIES)
             {
                 mLogger.Error("Failed to download package: " + package.ID);
             }
-
         }
 
+        // Todo: Implement IDisposable that return task????
+        public async Task Dispose()
+        {
+            mPackageManager.PackageInstalled -= DownloadDependencies;
+
+            await CopyFilesToLocalRepository();
+
+            Directory.Delete(mPackageManager.LocalRepository.Source, true);
+        }
 
         /// <summary>
         /// Download packages from a specific time
@@ -194,20 +167,57 @@ namespace Ishimotto.NuGet
                            select package.ToDto();
 
             await DownloadPackagesAsync(packages);
-
         }
 
         #endregion
 
-        // Todo: Implement IDisposable that return task????
-        public async Task Dispose()
+        #region Internal Methods
+
+        /// <summary>
+        /// Downloads the dependencies of a package
+        /// </summary>
+        /// <param name="sender"><see cref="mPackageManager"/></param>
+        /// <param name="e">Event containing the downloaded package</param>
+        internal async void DownloadDependencies(object sender, PackageOperationEventArgs e)
         {
-            mPackageManager.PackageInstalled -= DownloadDependencies;
+            var dependnciesToDownload = from set in e.Package.DependencySets
+                                        from depndency in set.Dependencies
+                                        where DependenciesRepostory.ShouldDownload(depndency)
+                                        select depndency.ToDto(mPackageManager);
+            
+            if (!dependnciesToDownload.IsEmpty())
+            {
 
-            await CopyFilesToLocalRepository();
-
-            Directory.Delete(mPackageManager.LocalRepository.Source, true);
+                await DownloadPackagesAsync(dependnciesToDownload);
+            }
         }
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Copy the packages from the working directory to <see cref="mLocalRepository"/>
+        /// </summary>
+        /// <returns></returns>
+        private Task CopyFilesToLocalRepository()
+        {
+            mLogger.Info("Copying packages from Temp folder to local repository");
+
+            return Task.Run(() =>
+            {
+                var files = new DirectoryInfo(mPackageManager.LocalRepository.Source).EnumerateFiles("*.nupkg",
+                    SearchOption.AllDirectories);
+
+                foreach (var file in files)
+                {
+                    file.CopyTo(Path.Combine(mLocalRepository, file.Name));
+                }
+
+            });
+
+        }
+
+        #endregion
     }
 
 }
