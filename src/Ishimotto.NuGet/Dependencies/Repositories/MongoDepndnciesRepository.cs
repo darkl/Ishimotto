@@ -57,6 +57,22 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
 
         }
 
+        /// <summary>
+        /// Adds single package to the repository
+        /// </summary>
+        /// <param name="package">item to add</param>
+        /// <returns>Task to indicate when the process is completed</returns>
+        public Task AddDependnecyAsync(PackageDto package)
+        {
+            return Task.Run(() =>
+            {
+                lock (mSyncObject)
+                {
+                    mDepndencies.Insert(package);
+                }
+            });
+
+        }
 
         /// <summary>
         /// Determines whether a depdendency should be download
@@ -79,7 +95,7 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         /// </summary>
         /// <param name="dependencies">The depdendnecies to the repository</param>
         /// <returns>A task to indicate when the process is done</returns>
-        public Task AddDepndencies(IEnumerable<PackageDto> dependencies)
+        public Task AddDepndenciesAsync(IEnumerable<PackageDto> dependencies)
         {
             return Task.Run(() =>
             {

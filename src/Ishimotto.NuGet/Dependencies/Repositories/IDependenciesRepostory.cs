@@ -21,7 +21,15 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         /// </summary>
         /// <param name="dependencies">The depdendnecies to the repository</param>
         /// <returns>A task to indicate when the process is done</returns>
-        Task AddDepndencies(IEnumerable<PackageDto> dependencies);
+        Task AddDepndenciesAsync(IEnumerable<PackageDto> dependencies);
+
+
+        /// <summary>
+        /// Adds single package to the repository
+        /// </summary>
+        /// <param name="package">item to add</param>
+        /// <returns>Task to indicate when the process is completed</returns>
+        Task AddDependnecyAsync(PackageDto package);
 
         /// <summary>
         /// Determines whether a depdendency should be download
