@@ -63,11 +63,19 @@ namespace Ishimotto.NuGet.Tests
         /// <summary>
         /// Collection of the depndencies of <see cref="PACKAGE_WITH_DEPENDENCIES_ID"/>
         /// </summary>
-        private static readonly IEnumerable<string> DEPNDENDCIES_LIST = new[] { "Microsoft.AspNet.WebPages", "Microsoft.Web.Infrastructure", "Microsoft.AspNet.Razor"}; 
+        private static readonly IEnumerable<string> DEPNDENDCIES_LIST = new[] { "Microsoft.AspNet.WebPages", "Microsoft.Web.Infrastructure", "Microsoft.AspNet.Razor" };
         #endregion
 
+        /// <summary>
+        /// The object to test
+        /// </summary>
         private PackageManagerDownloader mDownloader;
-        
+
+        #region Initialize Tests
+
+        /// <summary>
+        /// Creates necessary repositories and configure the <see cref="mDownloader"/>
+        /// </summary>
         [SetUp]
         public void Init()
         {
@@ -77,9 +85,12 @@ namespace Ishimotto.NuGet.Tests
 
             var remoteRepository = REMOTE_NUGET_REPOSITORY;
 
-            mDownloader = new PackageManagerDownloader(remoteRepository, localRepository,null);
+            mDownloader = new PackageManagerDownloader(remoteRepository, localRepository, null);
         }
 
+        /// <summary>
+        /// Create the local repository directory
+        /// </summary>
         private static void SetupTestDirectory()
         {
             if (!Directory.Exists(LOCAL_REPOSITORY_PERFIX))
@@ -93,7 +104,12 @@ namespace Ishimotto.NuGet.Tests
                 Directory.CreateDirectory(LOCAL_REPOSITORY_PERFIX);
             }
         }
-        
+
+        #endregion
+
+        /// <summary>
+        /// Sanity test, the simplest use case to examine
+        /// </summary>
         [Test]
         public async void Test_Simple_Download()
         {
@@ -117,38 +133,13 @@ namespace Ishimotto.NuGet.Tests
             //Assert
             AssertExistance("NUnit", "log4net");
 
-            repositoryMock.Verify(rep => rep.AddDepndenciesAsync(It.IsAny<IEnumerable<PackageDto>>()),Times.Exactly(1));
+            repositoryMock.Verify(rep => rep.AddDepndenciesAsync(It.IsAny<IEnumerable<PackageDto>>()), Times.Exactly(1));
 
         }
 
-        //Todo: When upgrading to C# 6.0 all the calls to this function may return the enumerable and not cast it to array
-        private static void AssertExistance(params string[] expectedFiles)
-        {
-
-            var localRepository = Path.Combine(Environment.CurrentDirectory, LOCAL_REPOSITORY_PERFIX);
-
-            var files = Directory.GetFiles(LOCAL_REPOSITORY_PERFIX, "*.nupkg", SearchOption.AllDirectories);
-
-            Assert.That(files.Length,Is.EqualTo(expectedFiles.Length), "pakages in repository: " + string.Join(",", files.Select(file => file.Substring(file.LastIndexOf(@"\")))));
-            foreach (var expectedFile in expectedFiles)
-            {
-                Assert.IsTrue(files.Any(filePath => filePath.ToLower().Contains(expectedFile.ToLower())),"Missing package id: " + expectedFile);
-            }
-
-        }
-
-        private static void AssertMissing(params string[] expectedFiles)
-        {
-
-            var files = Directory.GetFiles(LOCAL_REPOSITORY_PERFIX, "*.nupkg", SearchOption.AllDirectories);
-            
-            foreach (var expectedFile in expectedFiles)
-            {
-                Assert.IsFalse(files.Any(file => file.Contains(expectedFile)));
-            }
-
-        }
-
+        /// <summary>
+        /// Checks that the <see cref="PackageManagerDownloader"/> can handle downloading dependencies of certain package
+        /// </summary>
         [Test]
         public async void Test_Dependencies_Download()
         {
@@ -177,32 +168,10 @@ namespace Ishimotto.NuGet.Tests
             AssertExistance(dependencies.Select(d => d.Id).ToArray());
 
         }
-
-        private static Mock<IDependenciesRepostory> CreateRepositoryMock()
-        {
-            var repository = new Mock<IDependenciesRepostory>();
-
-            repository.Setup(repo => repo.ShouldDownload(It.IsAny<PackageDependency>())).Returns(true);
-            return repository;
-        }
-
-        private Mock<IPackage> CreatePackageMock(IEnumerable<PackageDependencySet> sets)
-        {
-            var package = new Mock<IPackage>();
-
-            package.SetupGet(p => p.DependencySets).Returns(sets);
-            return package;
-        }
-
-
-        private Mock<IPackage> CreatePackageMock(IEnumerable<PackageDependency> depdendencies)
-        {
-            var package = new Mock<IPackage>();
-
-            package.SetupGet(p => p.DependencySets).Returns(new[] { new PackageDependencySet(new FrameworkName(".NETFramework,Version=v4.5"), depdendencies) });
-            return package;
-        }
-
+        
+        /// <summary>
+        /// Checks that the <see cref="PackageManagerDownloader"/> can handle downloading dependencies of dependencies
+        /// </summary>
         [Test]
         public async void Test_Download_All_Depndencies()
         {
@@ -211,7 +180,7 @@ namespace Ishimotto.NuGet.Tests
             var mockRepository = new Mock<IDependenciesRepostory>();
 
             mockRepository.Setup(rep => rep.ShouldDownload(It.IsAny<PackageDependency>())).Returns(true);
-                
+
             mDownloader.DependenciesRepostory = mockRepository.Object;
 
             //Act
@@ -222,13 +191,16 @@ namespace Ishimotto.NuGet.Tests
 
 
             //Assert
-            mockRepository.Verify(rep => rep.ShouldDownload(It.IsAny<PackageDependency>()),Times.AtLeast(4));
+            mockRepository.Verify(rep => rep.ShouldDownload(It.IsAny<PackageDependency>()), Times.AtLeast(4));
 
             mockRepository.Verify(rep => rep.AddDepndenciesAsync(It.IsAny<IEnumerable<PackageDto>>()), Times.AtLeastOnce);
 
-            AssertExistance(DEPNDENDCIES_LIST.Concat(new [] {PACKAGE_WITH_DEPENDENCIES_ID}).ToArray());
+            AssertExistance(DEPNDENDCIES_LIST.Concat(new[] { PACKAGE_WITH_DEPENDENCIES_ID }).ToArray());
         }
 
+        /// <summary>
+        /// Checks that the <see cref="PackageManagerDownloader"/> can handle downloading more than one <see cref="PackageDependencySet"/>
+        /// </summary>
         [Test]
         public void Test_Download_Depndencies_Sets()
         {
@@ -236,11 +208,11 @@ namespace Ishimotto.NuGet.Tests
 
             var dependencies = BuildDependencies();
 
-            var set1 = BuildDependenciesSet(dependencies.Take(dependencies.Count() /2));
+            var set1 = BuildDependenciesSet(dependencies.Take(dependencies.Count() / 2));
 
-            var set2 = BuildDependenciesSet(dependencies.Skip(dependencies.Count() /2));
+            var set2 = BuildDependenciesSet(dependencies.Skip(dependencies.Count() / 2));
 
-            var packageMock = CreatePackageMock(new[] {set1, set2});
+            var packageMock = CreatePackageMock(new[] { set1, set2 });
 
             var repositoryMock = CreateRepositoryMock();
 
@@ -248,7 +220,7 @@ namespace Ishimotto.NuGet.Tests
 
             //Act
 
-            mDownloader.DownloadDependencies(null,new PackageOperationEventArgs(packageMock.Object,null,string.Empty));
+            mDownloader.DownloadDependencies(null, new PackageOperationEventArgs(packageMock.Object, null, string.Empty));
 
             //Assert
 
@@ -256,18 +228,9 @@ namespace Ishimotto.NuGet.Tests
 
         }
 
-        private PackageDependencySet BuildDependenciesSet(IEnumerable<PackageDependency> dependencies)
-        {
-            return new PackageDependencySet(new FrameworkName(".NETFramework,Version=v4.5"), dependencies);
-        }
-
-        private IEnumerable<PackageDependency> BuildDependencies()
-        {
-            yield return new PackageDependency("log4net", new VersionSpec(SemanticVersion.Parse("2.0.3")));
-            yield return new PackageDependency("NUnit", new VersionSpec(SemanticVersion.Parse("2.6.3")));
-            yield return new PackageDependency("Newtonsoft.Json", new VersionSpec(SemanticVersion.Parse("6.0.8")));
-        }
-
+        /// <summary>
+        /// Checks the <see cref="PackageManagerDownloader"/> does not download dependencies that already exist in the <see cref="IDependenciesRepostory"/>
+        /// </summary>
         [Test]
         public async void Test_Download_Depndencies_When_Should_Download_Is_False()
         {
@@ -281,21 +244,115 @@ namespace Ishimotto.NuGet.Tests
 
             //Act
 
-            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID,PACKAGE_VERSION));
+            await mDownloader.DownloadPackageAsync(new PackageDto(PACKAGE_WITH_DEPENDENCIES_ID, PACKAGE_VERSION));
 
             await mDownloader.Dispose();
-            
+
 
             //Assert
             mockRepository.Verify(rep => rep.AddDependnecyAsync(It.IsAny<PackageDto>()), Times.Exactly(1));
 
-            mockRepository.Verify(rep => rep.AddDepndenciesAsync(It.IsAny<IEnumerable<PackageDto>>()),Times.Never);
+            mockRepository.Verify(rep => rep.AddDepndenciesAsync(It.IsAny<IEnumerable<PackageDto>>()), Times.Never);
 
             AssertExistance(PACKAGE_WITH_DEPENDENCIES_ID);
-           
+
             AssertMissing(DEPNDENDCIES_LIST.ToArray());
-            
+
         }
+
+        #region Private Methods
+        //Todo: When upgrading to C# 6.0 all the calls to this function may return the enumerable and not cast it to array
+        /// <summary>
+        /// Checks that packages exists in the local repository
+        /// </summary>
+        /// <param name="packagesIds">The ids of the packages that soppuse to exist in the repository</param>
+        private static void AssertExistance(params string[] packagesIds)
+        {
+            var files = Directory.GetFiles(LOCAL_REPOSITORY_PERFIX, "*.nupkg", SearchOption.AllDirectories);
+
+            Assert.That(files.Length, Is.EqualTo(packagesIds.Length), "pakages in repository: " + string.Join(",", files.Select(file => file.Substring(file.LastIndexOf(@"\")))));
+            foreach (var expectedFile in packagesIds)
+            {
+                Assert.IsTrue(files.Any(filePath => filePath.ToLower().Contains(expectedFile.ToLower())), "Missing package id: " + expectedFile);
+            }
+
+        }
+
+        /// <summary>
+        /// Checks that packages missing in the local repository
+        /// </summary>
+        /// <param name="packagesIds">The ids of the packages that does not soppuse to exist in the repository</param>
+        private static void AssertMissing(params string[] packagesIds)
+        {
+
+            var files = Directory.GetFiles(LOCAL_REPOSITORY_PERFIX, "*.nupkg", SearchOption.AllDirectories);
+
+            foreach (var expectedFile in packagesIds)
+            {
+                Assert.IsFalse(files.Any(file => file.Contains(expectedFile)), "The file: {0} does not suppose to exsit in the repository", expectedFile);
+            }
+
+        }
+
+        /// <summary>
+        /// Creates new <see cref="PackageDependencySet"/>
+        /// </summary>
+        /// <param name="dependencies"><see cref="PackageDependency"/> to contain inside the <see cref="PackageDependencySet"/></param>
+        /// <returns></returns>
+        private PackageDependencySet BuildDependenciesSet(IEnumerable<PackageDependency> dependencies)
+        {
+            return new PackageDependencySet(new FrameworkName(".NETFramework,Version=v4.5"), dependencies);
+        }
+
+        /// <summary>
+        /// Creates new <see cref="PackageDependency"/>'s
+        /// </summary>
+        /// <returns>New dependencies</returns>
+        private IEnumerable<PackageDependency> BuildDependencies()
+        {
+            yield return new PackageDependency("log4net", new VersionSpec(SemanticVersion.Parse("2.0.3")));
+            yield return new PackageDependency("NUnit", new VersionSpec(SemanticVersion.Parse("2.6.3")));
+            yield return new PackageDependency("Newtonsoft.Json", new VersionSpec(SemanticVersion.Parse("6.0.8")));
+        }
+
+        /// <summary>
+        /// Creates mock for <see cref="IDependenciesRepostory"/>
+        /// </summary>
+        /// <returns>Mock object, that returns always true on the method ShouldDownload</returns>
+        private static Mock<IDependenciesRepostory> CreateRepositoryMock()
+        {
+            var repository = new Mock<IDependenciesRepostory>();
+
+            repository.Setup(repo => repo.ShouldDownload(It.IsAny<PackageDependency>())).Returns(true);
+            return repository;
+        }
+
+        /// <summary>
+        /// Creates mock for <see cref="IPackage"/>
+        /// </summary>
+        /// <param name="sets"><see cref=PackageDependencySet""/> to add to the package, those dependencies will be downloaded</param>
+        /// <returns>mock of <see cref="IPackage"/> with the embeded <see cref="sets"/></returns>
+        private Mock<IPackage> CreatePackageMock(IEnumerable<PackageDependencySet> sets)
+        {
+            var package = new Mock<IPackage>();
+
+            package.SetupGet(p => p.DependencySets).Returns(sets);
+            return package;
+        }
+
+        /// <summary>
+        /// Creates mock for <see cref="IPackage"/>
+        /// </summary>
+        /// <param name="depdendencies"><see cref=PackageDependency""/> to add to the package, those dependencies will be downloaded</param>
+        /// <returns>mock of <see cref="IPackage"/> with the embeded <see cref="depdendencies"/></returns>
+        private Mock<IPackage> CreatePackageMock(IEnumerable<PackageDependency> depdendencies)
+        {
+            var package = new Mock<IPackage>();
+
+            package.SetupGet(p => p.DependencySets).Returns(new[] { new PackageDependencySet(new FrameworkName(".NETFramework,Version=v4.5"), depdendencies) });
+            return package;
+        } 
+        #endregion
 
         [TearDown]
         public async void TearDown()
