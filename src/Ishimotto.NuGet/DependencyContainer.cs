@@ -74,7 +74,7 @@ namespace Ishimotto.NuGet
                 from depndency in
                     package.GetCompatiblePackageDependencies(new FrameworkName(".NETFramework,Version=v4.5"))
                 where DependenciesRepostory.ShouldDownload(depndency)
-                select depndency.ToDto();
+                select depndency.ToDto(mNugetRepository);
 
             var validDependencies = dependencies.Where(d => d != null);
 

@@ -9,19 +9,23 @@ namespace Ishimotto.NuGet.Dependencies
     /// </summary>
     public static class PackageExtentions
     {
+
+
+
+
         /// <summary>
         /// Creates new <see cref="PackageDto"/> from <see cref="PackageDependency"/>
         /// </summary>
         /// <param name="package">Package to build <see cref="PackageDto"/> with</param>
         /// <returns><see cref="PackageDto"/> form of <see cref="package"/></returns>
-        public static PackageDto ToDto(this PackageDependency package)
+        public static PackageDto ToDto(this PackageDependency package,IPackageRepository nugetRepository)
         {
 
             /* This is a defence mechanism against stupidity:
              * Stupid people refernece their packages to packages that does not exist yet.
              * So for every dependency I ask the source repository to bring a suitable package */
             
-            var packageFromSourceRepository = packageManager.SourceRepository.FindPackage(package.Id,
+            var packageFromSourceRepository = nugetRepository.FindPackage(package.Id,
                 package.VersionSpec, false, false);
 
             if (packageFromSourceRepository == null)
