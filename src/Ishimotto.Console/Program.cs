@@ -54,8 +54,7 @@ namespace Ishimotto.Console
             var mongoRepository = new MongoDepndenciesRepository("mongodb://localhost:27017");
 
             //Todo:// config
-            var container = new DependencyContainer(@"https://packages.nuget.org/api/v2",
-                ishimottoSettings.DownloadsDirectory, mongoRepository);
+            var container = new DependencyContainer(@"https://packages.nuget.org/api/v2", mongoRepository);
 
             var dtos = result.Select(p => p.ToDto());
             

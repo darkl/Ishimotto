@@ -39,7 +39,7 @@ namespace Ishimotto.NuGet
         /// <param name="nugetRepository">path to the source NuGet repository (NuGet website)</param>
         /// <param name="localRepository">path to the destenation repository</param>
         /// <param name="dependenciesRepostory">Entity to check if package's depndencies are needed</param>
-        public DependencyContainer(string nugetRepository, string localRepository, IDependenciesRepostory dependenciesRepostory)
+        public DependencyContainer(string nugetRepository, IDependenciesRepostory dependenciesRepostory)
         {
             mLogger = LogManager.GetLogger(typeof(DependencyContainer).Name);
 
@@ -63,12 +63,17 @@ namespace Ishimotto.NuGet
 
         public async Task<IEnumerable<PackageDto>> GetDependenciesAsync(PackageDto packageDto, bool updateRepository = true)
         {
+            return await GetDependenciesAsync(packageDto.ID, updateRepository);
+        }
+
+        public async Task<IEnumerable<PackageDto>> GetDependenciesAsync(string packageID, bool updateRepository = true)
+        {
             //TODO: Support diffrent kinds of frameworks
 
-            mLogger.InfoFormat("Downloading pdependencies of {0}", packageDto.ID);
+            mLogger.InfoFormat("Downloading pdependencies of {0}", packageID);
 
             var package =
-                mNugetRepository.FindPackage(packageDto.ID);
+                mNugetRepository.FindPackage(packageID);
 
             var dependencies =
                 from depndency in
@@ -82,15 +87,13 @@ namespace Ishimotto.NuGet
             {
                 if (mLogger.IsInfoEnabled)
                 {
-                    mLogger.InfoFormat("Found {0} dependencies to the package {1} : {2}",validDependencies.Count(),packageDto.ID,FormatPackages(validDependencies));
+                    mLogger.InfoFormat("Found {0} dependencies to the package {1} : {2}", validDependencies.Count(),
+                        packageID, FormatPackages(validDependencies));
 
                     mLogger.InfoFormat("Adding dependencies of {0} to the repository", package.Id);
 
                     await DependenciesRepostory.AddDepndenciesAsync(validDependencies);
                 }
-                
-
-        
             }
 
             return dependencies;
@@ -98,7 +101,7 @@ namespace Ishimotto.NuGet
 
         private static string FormatPackages(IEnumerable<PackageDto> validDependencies)
         {
-            return String.Join("," + Environment.NewLine,validDependencies.Select(dependency => dependency.ID));
+            return String.Join("," + Environment.NewLine, validDependencies.Select(dependency => dependency.ID));
         }
 
         #endregion
