@@ -1,4 +1,5 @@
 ﻿using Ishimotto.NuGet.NuGetGallery;
+using log4net;
 using NuGet;
 
 namespace Ishimotto.NuGet.Dependencies
@@ -10,7 +11,7 @@ namespace Ishimotto.NuGet.Dependencies
     public static class PackageExtentions
     {
 
-
+        private static ILog logger = LogManager.GetLogger(typeof (PackageExtensions));
 
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace Ishimotto.NuGet.Dependencies
 
             if (packageFromSourceRepository == null)
             {
-                //Todo: log ... 
+                logger.ErrorFormat("Failed to find sutable version of package {0}, the package won't be downloaded",package.Id); 
 
                 return null;
             }
