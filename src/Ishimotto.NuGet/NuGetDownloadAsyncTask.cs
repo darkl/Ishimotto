@@ -23,9 +23,9 @@ namespace Ishimotto.NuGet
 
         private NuGetSettings mSettings;
 
-        private IDependenciesRepostoryInfo mRepositoryInfo;
-
         private DateTime mLastFetchTime;
+
+        private DependencyContainer mDependencyContainer;
 
         public NuGetDownloadAsyncTask(NuGetSettings settings,IDependenciesRepostoryInfo info, DateTime lastFetchTime)
         {
@@ -33,51 +33,47 @@ namespace Ishimotto.NuGet
 
             mSettings = settings;
 
-            mRepositoryInfo = info;
-
             mLastFetchTime = lastFetchTime;
+
+            mDependencyContainer = new DependencyContainer(mSettings.RemoteRepositoryUrl, info);
         }
 
         public async Task ExecuteAsync()
         {
             //var ishimottoSettings = IshimottoConfig.GetConfig();
             
-            NuGetQuerier querier = new NuGetQuerier(mSettings.NuGetUrl);
+            NuGetQuerier querier = new NuGetQuerier(mSettings.RemoteRepositoryUrl);
 
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
             var packages =
-                 querier.FetchFrom(mLastFetchTime);
+                 querier.FetchFrom(mLastFetchTime,20,TimeSpan.FromSeconds(60)).Select(package => package.ToDto());
+
+            var updateTask =  mDependencyContainer.AddDependencies(packages);
 
             Download(packages);
 
-            mLogger.Debug("Finish isimotto process");
+            await updateTask;
+
         }
 
-        private async  void Download(IEnumerable<V2FeedPackage> packages)
+        private async  void Download(IEnumerable<PackageDto> packages)
         {
             //Todo: must be a better solution
 
             AriaDownloader downloader = new AriaDownloader(mSettings.DownloadDirectory,true, 10, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
             AriaSeverity.Error);
-
-            
-            
-            var container = new DependencyContainer(mSettings.RemoteRepositoryUrl, mRepositoryInfo);
-
-            var dtos = packages.Select(p => p.ToDto());
-
-            await container.AddDependencies(dtos);
-
+           
+         
             mLogger.Info("Resolving dependencis");
 
-            HandleDependencies(dtos, container, downloader).Wait();
+           await HandleDependencies(packages, mDependencyContainer, downloader);
 
             mLogger.Debug("Finish resolve dependencies");
 
             mLogger.Info("Start downloading packages");
 
-            downloader.Download(dtos.Select(dto => dto.GetDownloadLink()));
+            downloader.Download(packages.Select(dto => dto.GetDownloadLink()));
         }
 
         private async  Task HandleDependencies(IEnumerable<PackageDto> packages, DependencyContainer pmDownloader, AriaDownloader downloader)

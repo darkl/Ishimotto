@@ -11,7 +11,7 @@ namespace Ishimotto.NuGet.Dependencies
     public static class PackageExtentions
     {
 
-        private static ILog logger = LogManager.GetLogger(typeof (PackageExtensions));
+        private static ILog logger = LogManager.GetLogger(typeof(PackageExtensions));
 
 
         /// <summary>
@@ -19,23 +19,45 @@ namespace Ishimotto.NuGet.Dependencies
         /// </summary>
         /// <param name="package">Package to build <see cref="PackageDto"/> with</param>
         /// <returns><see cref="PackageDto"/> form of <see cref="package"/></returns>
-        public static PackageDto ToDto(this PackageDependency package,IPackageRepository nugetRepository)
+        public static PackageDto ToDto(this PackageDependency package, IPackageRepository nugetRepository)
         {
 
             /* This is a defence mechanism against stupidity:
              * Stupid people refernece their packages to packages that does not exist yet.
              * So for every dependency I ask the source repository to bring a suitable package */
-            
-            var packageFromSourceRepository = nugetRepository.FindPackage(package.Id,
-                package.VersionSpec, false, false);
 
-            if (packageFromSourceRepository == null)
+            IPackage packageFromSourceRepository;
+
+            if (package.VersionSpec == null)
             {
-                logger.ErrorFormat("Failed to find sutable version of package {0}, the package won't be downloaded",package.Id); 
-
-                return null;
+                packageFromSourceRepository = nugetRepository.FindPackage(package.Id);
             }
 
+            else
+            {
+                packageFromSourceRepository = nugetRepository.FindPackage(package.Id,
+              package.VersionSpec, false, false);
+                if (packageFromSourceRepository == null)
+                {
+
+              /* If we couldn't fins a stable version of the dependency, we will search for a pre release
+               * I Don't understand how something stable depnds on pre release ...
+               * Moreover, I agree to download dependency that are not listed because it necessary to the funcuality of a package
+               */
+                    packageFromSourceRepository = nugetRepository.FindPackage(package.Id,
+                        package.VersionSpec, true, true);
+                }
+
+            }
+          
+                if (packageFromSourceRepository == null)
+                {
+                    logger.ErrorFormat(
+                        "Failed to find sutable version of package {0}, the package won't be downloaded", package.Id);
+                    
+                    return null;
+                }
+            
             return new PackageDto(packageFromSourceRepository);
         }
 
@@ -51,7 +73,7 @@ namespace Ishimotto.NuGet.Dependencies
 
         public static PackageDto ToDto(this V2FeedPackage package)
         {
-            return new PackageDto(package.Id,package.Version);
+            return new PackageDto(package.Id, package.Version);
         }
     }
 }

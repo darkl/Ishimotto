@@ -87,7 +87,7 @@ namespace Ishimotto.NuGet
                 }
             }
 
-            return dependencies;
+            return validDependencies;
         }
 
         private static string FormatPackages(IEnumerable<PackageDto> validDependencies)
