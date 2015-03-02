@@ -38,23 +38,14 @@ namespace Ishimotto.NuGet
         /// </summary>
         /// <param name="nugetRepository">path to the source NuGet repository (NuGet website)</param>
         /// <param name="localRepository">path to the destenation repository</param>
-        /// <param name="dependenciesRepostory">Entity to check if package's depndencies are needed</param>
-        public DependencyContainer(string nugetRepository, IDependenciesRepostory dependenciesRepostory)
+        /// <param name="dependenciesRepostoryInfo">Entity to check if package's depndencies are needed</param>
+        public DependencyContainer(string nugetRepository, IDependenciesRepostoryInfo dependenciesRepostoryInfo)
         {
             mLogger = LogManager.GetLogger(typeof(DependencyContainer).Name);
 
-
             mNugetRepository = PackageRepositoryFactory.Default.CreateRepository(nugetRepository);
 
-
-            //var tempRepository = Path.Combine(localRepository, TEMP_DIRECTORY_NAME);
-            //CreateDirectoryIfNecessary(tempRepository);
-
-            //InitializePackageManager(nugetRepository, tempRepository);
-
-            DependenciesRepostory = dependenciesRepostory;
-
-            //mLocalRepository = localRepository;
+            DependenciesRepostory = dependenciesRepostoryInfo.Build();
         }
 
         #endregion

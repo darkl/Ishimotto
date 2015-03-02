@@ -36,6 +36,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Data.Edm, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Edm.5.3.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
@@ -60,6 +61,9 @@
     <Reference Include="NuGet.Core, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NuGet.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpConfig">
+      <HintPath>..\packages\SharpConfig.1.4.2\lib\SharpConfig.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -96,11 +100,14 @@
     <Compile Include="Dependencies\PackageDto.cs" />
     <Compile Include="Dependencies\PackageExtentions.cs" />
     <Compile Include="Dependencies\Repositories\MongoDepndenciesRepository.cs" />
+    <Compile Include="IDependenciesRepostoryInfo.cs" />
     <Compile Include="INuGetInformation.cs" />
     <Compile Include="NuGetDownloader.cs" />
+    <Compile Include="NuGetDownloadAsyncTask.cs" />
     <Compile Include="NuGetQuerier.cs" />
     <Compile Include="NuGetFetcher.cs" />
     <Compile Include="DependencyContainer.cs" />
+    <Compile Include="NuGetSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\NuGetGallery\Reference.cs">
       <AutoGen>True</AutoGen>

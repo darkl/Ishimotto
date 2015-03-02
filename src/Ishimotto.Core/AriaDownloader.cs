@@ -35,7 +35,7 @@ namespace Ishimotto.Core
         #region Constants
         private const string ARIA_EXE = "aria2c.exe";
 
-        private const int MAX_URLS_IN_FILE = 500;
+        private const int MAX_URLS_IN_FILE = 5000;
         #endregion
 
         #region Members
@@ -213,8 +213,7 @@ namespace Ishimotto.Core
 
             IEnumerable<string> filePaths;
 
-            //Todo: change 5000 to const
-            var numOfFiles = Math.Max(urls.Count() / 5000, 1);
+            var numOfFiles = Math.Max(urls.Count() / MAX_URLS_IN_FILE, 1);
 
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {

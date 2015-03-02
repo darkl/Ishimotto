@@ -33,13 +33,12 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         /// reates new instance of <see cref="MongoDepndenciesRepository"/>
         /// </summary>
         /// <param name="mongoConnection">The connection to the MongoDb</param>
-        public MongoDepndenciesRepository(string mongoConnection)
+        public MongoDepndenciesRepository(string mongoConnection,string DbName,string collectionName)
         {
-            //Todo: should extract those parameters to configuration, wish I had Infra.Configuraiton
             mDepndencies =
                 new MongoClient(mongoConnection).GetServer()
-                    .GetDatabase("Ishimotto")
-                    .GetCollection<PackageDto>("Dependencies");
+                    .GetDatabase(DbName)
+                    .GetCollection<PackageDto>(collectionName);
 
         }
 

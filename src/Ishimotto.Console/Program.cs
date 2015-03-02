@@ -9,6 +9,7 @@ using Ishimotto.NuGet.Dependencies.Repositories;
 using Ishimotto.NuGet.NuGetGallery;
 using log4net;
 using log4net.Config;
+using SharpConfig;
 
 namespace Ishimotto.Console
 {
@@ -21,72 +22,87 @@ namespace Ishimotto.Console
         {
             InitializeLogger();
 
-            var ishimottoSettings = IshimottoConfig.GetConfig();
+            //var ishimottoSettings = IshimottoConfig.GetConfig();
 
-            NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
+            //NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
 
-            mLogger.Info("Quering NuGet to get packages inforamtion");
+            //mLogger.Info("Quering NuGet to get packages inforamtion");
 
-            var result =
-                 querier.FetchFrom(ishimottoSettings.LastFetchTime,20,TimeSpan.FromSeconds(40));
-
-           // var links = result.Select(package => NuGetDownloader.GetUri(package.GalleryDetailsUrl));
-
-            //if (mLogger.IsInfoEnabled)
-            //{
-            //   mLogger.InfoFormat("{0} packages returned", links.Count());
-            //}
+            //var result =
+            //     querier.FetchFrom(ishimottoSettings.LastFetchTime,20,TimeSpan.FromSeconds(40));
             
-            Download(ishimottoSettings, result);
+            //Download(ishimottoSettings, result);
 
-            mLogger.Debug("Finish isimotto process");
+            mLogger.Info("Start Ishimotto process");
+            
+            Configuration conf = Configuration.LoadFromFile("Configuration.xml");
+
+            DateTime lastFetchTime = conf["Ishimotto.General"]["LastFetchTime"].GetValue<DateTime>();
+
+            var nugetSettings = new NuGetSettings(conf["Ishimotto.NuGet"]);
+            
+            var repositoryConf = conf[nugetSettings.DependenciesRepositoryType.Name];
+
+            var repositoryInfo = new DependenciesRepostoryInfo(nugetSettings.DependenciesRepositoryType,repositoryConf.Select(setting => setting.Value).ToArray());
+            
+            var nugetTask = new NuGetDownloadAsyncTask(nugetSettings, repositoryInfo, lastFetchTime);
+
+            nugetTask.ExecuteAsync().Wait();
+
+            mLogger.Info("Updating LastFetchTime to " + DateTime.Now.ToShortDateString());
+
+            conf["Ishimotto.General"]["LastFetchTime"].SetValue(DateTime.Now.ToShortDateString());
+
+            conf.Save("configuration.xml");
+            
+            mLogger.Debug("Finish ishimotto process");
         }
 
-        private async static void Download(IshimottoConfig ishimottoSettings, IEnumerable<V2FeedPackage> result)
-        {
-            //Todo: must be a better solution
+        //private async static void Download(IshimottoConfig ishimottoSettings, IEnumerable<V2FeedPackage> result)
+        //{
+        //    //Todo: must be a better solution
 
-            AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadsDirectory,
-                ishimottoSettings.DeleteTempFiles, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath,
-            ishimottoSettings.AriaLogLevel);
+        //    AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadsDirectory,
+        //        ishimottoSettings.DeleteTempFiles, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath,
+        //    ishimottoSettings.AriaLogLevel);
 
-            //Todo: config
-            var mongoRepository = new MongoDepndenciesRepository("mongodb://localhost:27017");
+        //    //Todo: config
+        //    var mongoRepository = new MongoDepndenciesRepository("mongodb://localhost:27017");
 
-            //Todo:// config
-            var container = new DependencyContainer(@"https://packages.nuget.org/api/v2", mongoRepository);
+        //    //Todo:// config
+        //    var container = new DependencyContainer(@"https://packages.nuget.org/api/v2", mongoRepository);
 
-            var dtos = result.Select(p => p.ToDto());
+        //    var dtos = result.Select(p => p.ToDto());
             
-            await container.AddDependencies(dtos);
+        //    await container.AddDependencies(dtos);
 
-            mLogger.Info("Resolving dependencis");
+        //    mLogger.Info("Resolving dependencis");
             
-            HandleDependencies(dtos, container, downloader).Wait();
+        //    HandleDependencies(dtos, container, downloader).Wait();
 
-            mLogger.Debug("Finish resolve dependencies");
+        //    mLogger.Debug("Finish resolve dependencies");
 
-            mLogger.Info("Start downloading packages");
+        //    mLogger.Info("Start downloading packages");
 
-            downloader.Download(dtos.Select(dto => dto.GetDownloadLink()));
-        }
+        //    downloader.Download(dtos.Select(dto => dto.GetDownloadLink()));
+        //}
 
-        private async static Task HandleDependencies(IEnumerable<PackageDto> packages, DependencyContainer pmDownloader, AriaDownloader downloader)
-        {
-            Parallel.ForEach(packages, async package =>
-            {
-                var dependencies = await pmDownloader.GetDependenciesAsync(package);
+        //private async static Task HandleDependencies(IEnumerable<PackageDto> packages, DependencyContainer pmDownloader, AriaDownloader downloader)
+        //{
+        //    Parallel.ForEach(packages, async package =>
+        //    {
+        //        var dependencies = await pmDownloader.GetDependenciesAsync(package);
 
-                if (dependencies.Count() > 0)
-                {
-                    mLogger.InfoFormat("Adding Dependencies to download for {0}", package.ID);
+        //        if (dependencies.Count() > 0)
+        //        {
+        //            mLogger.InfoFormat("Adding Dependencies to download for {0}", package.ID);
 
-                    downloader.AddLinks(dependencies.Select(d => d.GetDownloadLink()));
+        //            downloader.AddLinks(dependencies.Select(d => d.GetDownloadLink()));
 
-                    HandleDependencies(dependencies, pmDownloader, downloader);
-                }
-            });
-        }
+        //            HandleDependencies(dependencies, pmDownloader, downloader);
+        //        }
+        //    });
+        //}
 
 
 

@@ -64,6 +64,7 @@
     <Compile Include="DownloadStatus\DownloadStatus.cs" />
     <Compile Include="HelperMethods.cs" />
     <Compile Include="FileWriter.cs" />
+    <Compile Include="IAsyncTask.cs" />
     <Compile Include="PendingDownload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
