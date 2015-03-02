@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -38,7 +39,15 @@ namespace Ishimotto.Core
         #endregion
 
         #region Members
+
         private ILog mLogger;
+
+        /// <summary>
+        /// Containers for links to download,
+        /// the Download method concat this collection with the links to download
+        ///
+        private ConcurrentBag<string> mLinks;
+
         #endregion
 
         #region Properties
@@ -90,7 +99,7 @@ namespace Ishimotto.Core
 
             DeleteTempFiles = deleteTempFiles;
 
-
+            mLinks = new ConcurrentBag<string>();
         }
 
 
@@ -143,29 +152,42 @@ namespace Ishimotto.Core
         }
 
         /// <summary>
+        /// Add links to download 
+        /// </summary>
+        /// <remarks>these links will be downloaded when the Download method is invoked</remarks>
+        /// <param name="links">A collection of links to add </param>
+        public void AddLinks(IEnumerable<string> links)
+        {
+            Parallel.ForEach(links, mLinks.Add);
+        }
+
+        /// <summary>
         /// Download mulitple files 
         /// </summary>
         /// <param name="urls">The urls of the files to download</param>
         public void Download(IEnumerable<string> urls)
         {
+
             if (urls == null)
             {
-                    mLogger.Fatal("Got null as url's to download");
-               
+                mLogger.Fatal("Got null as url's to download");
+
                 throw new ArgumentException("The urls argument can not be null");
             }
 
+            urls = urls.Concat(mLinks).Distinct();
+
             if (!urls.Any())
             {
-                    mLogger.Warn("No files to download . . . cycle is done");
-               }
+                mLogger.Warn("No files to download . . . cycle is done");
+            }
 
             if (mLogger.IsInfoEnabled)
             {
                 mLogger.InfoFormat("Start downloading {0} file(s)", urls.Count());
             }
 
-                mLogger.Debug("splitting the urls into files");
+            mLogger.Debug("splitting the urls into files");
 
             var paths = CreateLinkFiles(urls);
 
@@ -173,8 +195,6 @@ namespace Ishimotto.Core
             {
                 mLogger.Debug("splitting completed");
             }
-
-
 
             Parallel.ForEach(paths, DownloadFromFile);
         }
@@ -193,7 +213,8 @@ namespace Ishimotto.Core
 
             IEnumerable<string> filePaths;
 
-            var numOfFiles = Math.Max(urls.Count() / 5000,1);
+            //Todo: change 5000 to const
+            var numOfFiles = Math.Max(urls.Count() / 5000, 1);
 
             using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
             {
@@ -383,7 +404,7 @@ namespace Ishimotto.Core
 
                 return;
             }
-            
+
             AriaLogPath = logPath;
         }
 
@@ -425,5 +446,18 @@ namespace Ishimotto.Core
         #endregion
 
         #endregion
+
+        /// <summary>
+        /// Add link to download
+        /// </summary>
+        /// <remarks>
+        /// this method add link to the <see cref="mLinks"/> collections.
+        /// the link will be downloaded when the Download method is invoked
+        /// </remarks>
+        /// <param name="link"></param>
+        public void AddLink(string link)
+        {
+            mLinks.Add(link);
+        }
     }
 }

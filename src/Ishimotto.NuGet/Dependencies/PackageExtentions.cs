@@ -1,4 +1,5 @@
-﻿using NuGet;
+﻿using Ishimotto.NuGet.NuGetGallery;
+using NuGet;
 
 namespace Ishimotto.NuGet.Dependencies
 {
@@ -13,16 +14,23 @@ namespace Ishimotto.NuGet.Dependencies
         /// </summary>
         /// <param name="package">Package to build <see cref="PackageDto"/> with</param>
         /// <returns><see cref="PackageDto"/> form of <see cref="package"/></returns>
-        public static PackageDto ToDto(this PackageDependency package, IPackageManager packageManager)
+        public static PackageDto ToDto(this PackageDependency package)
         {
 
             /* This is a defence mechanism against stupidity:
              * Stupid people refernece their packages to packages that does not exist yet.
              * So for every dependency I ask the source repository to bring a suitable package */
-
+            
             var packageFromSourceRepository = packageManager.SourceRepository.FindPackage(package.Id,
                 package.VersionSpec, false, false);
-            
+
+            if (packageFromSourceRepository == null)
+            {
+                //Todo: log ... 
+
+                return null;
+            }
+
             return new PackageDto(packageFromSourceRepository);
         }
 
@@ -34,6 +42,11 @@ namespace Ishimotto.NuGet.Dependencies
         public static PackageDto ToDto(this IPackageName package)
         {
             return new PackageDto(package);
+        }
+
+        public static PackageDto ToDto(this V2FeedPackage package)
+        {
+            return new PackageDto(package.Id,package.Version);
         }
     }
 }

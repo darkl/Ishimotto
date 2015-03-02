@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 using NuGet;
 
@@ -10,17 +12,17 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
     /// <summary>
     /// An implementation of <see cref="IDependenciesRepostory"/> using MongoDB
     /// </summary>
-    class MongoDepndnciesRepository : IDependenciesRepostory
+    public class MongoDepndenciesRepository : IDependenciesRepostory
     {
         //Todo: consider moving this class to a diffrent dll, so this dll would not be depndended on Mongo
 
         #region Data Members
-        
+
         /// <summary>
         /// repositorie's depdendencies
         /// </summary>
         private MongoCollection<PackageDto> mDepndencies;
-        
+
         private object mSyncObject = new object();
 
         #endregion
@@ -28,14 +30,16 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         #region Constructors
 
         /// <summary>
-        /// reates new instance of <see cref="MongoDepndnciesRepository"/>
+        /// reates new instance of <see cref="MongoDepndenciesRepository"/>
         /// </summary>
         /// <param name="mongoConnection">The connection to the MongoDb</param>
-        public MongoDepndnciesRepository(string mongoConnection)
+        public MongoDepndenciesRepository(string mongoConnection)
         {
             //Todo: should extract those parameters to configuration, wish I had Infra.Configuraiton
             mDepndencies =
-                new MongoClient(mongoConnection).GetServer().GetDatabase("Ishimotto").GetCollection<PackageDto>("Dependencies");
+                new MongoClient(mongoConnection).GetServer()
+                    .GetDatabase("Ishimotto")
+                    .GetCollection<PackageDto>("Dependencies");
 
         }
 
@@ -52,9 +56,8 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         {
             lock (mSyncObject)
             {
-                return mDepndencies.AsQueryable().Contains(dependency);
+                return mDepndencies.Find(Query.EQ("_id", new BsonString(dependency.FormatPackageID()))).Any();
             }
-
         }
 
         /// <summary>
@@ -65,12 +68,22 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         public Task AddDependnecyAsync(PackageDto package)
         {
             return Task.Run(() =>
-            {
-                lock (mSyncObject)
                 {
-                    mDepndencies.Insert(package);
+                    {
+                        var options = new MongoInsertOptions()
+                        {
+                            CheckElementNames = true,
+                            Flags = InsertFlags.ContinueOnError,
+                            
+                        };
+                        lock (mSyncObject)
+                        {
+                            mDepndencies.Save(package, options);    
+                        }
+                        
+                    }
                 }
-            });
+                );
 
         }
 
@@ -81,13 +94,15 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         /// <returns>Boolean indicating if the <see cref="dependency"/></returns>
         public bool ShouldDownload(PackageDependency dependency)
         {
+            PackageDto[] ids;
+
             lock (mSyncObject)
             {
-
                 //Have to debug this
-                return mDepndencies.AsQueryable().Any(package => package.ID == dependency.Id &&
-                                                                 !dependency.VersionSpec.Satisfies(package.Version));
+                ids = mDepndencies.AsQueryable().Where(package => package.ID == dependency.Id).ToArray();
             }
+
+            return !ids.Any(package => dependency.VersionSpec.Satisfies(package.SemanticVersion));
         }
 
         /// <summary>
@@ -97,17 +112,20 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
         /// <returns>A task to indicate when the process is done</returns>
         public Task AddDepndenciesAsync(IEnumerable<PackageDto> dependencies)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                lock (mSyncObject)
+                //mDepndencies.InsertBatch(dependencies);
+
+                foreach (var dependency in dependencies)
                 {
-                    mDepndencies.InsertBatch(dependencies);
-                    
+                    await AddDependnecyAsync(dependency);
                 }
+
             });
 
-        }
+
 
         #endregion
+        }
     }
 }

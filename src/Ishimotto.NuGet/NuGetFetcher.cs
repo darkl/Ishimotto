@@ -41,7 +41,7 @@ namespace Ishimotto.NuGet
         private IEnumerable<V2FeedPackage> GetPage(int number)
         {
             IList<V2FeedPackage> current = null;
-            
+
             while (current == null)
             {
                 try
@@ -60,15 +60,14 @@ namespace Ishimotto.NuGet
         private IList<V2FeedPackage> TryGetPage(int number)
         {
             IQueryable<V2FeedPackage> packages =
-                mPackages.Skip(mPageSize*number).Take(mPageSize);
+                mPackages.Skip(mPageSize * number).Take(mPageSize);
 
             var task =
-                Task<IList<V2FeedPackage>>.Factory
-                                          .StartNew(() => packages.ToList());
+                Task<IList<V2FeedPackage>>.Run(() => packages.ToList());
 
-            bool finished =
-                Task.WaitAll(new Task[] {task}, mTimeout);
-
+           
+            bool finished =Task.WaitAll(new Task[] { task }, mTimeout);
+            
             if (finished)
             {
                 return task.Result;
