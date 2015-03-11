@@ -20,6 +20,9 @@ namespace Ishimotto.Console
 
         private static void Main(string[] args)
         {
+
+            System.Console.WriteLine("Ishimotto 1.0 2014-2015");
+
             InitializeLogger();
 
             //var ishimottoSettings = IshimottoConfig.GetConfig();
