@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using SharpConfig;
 
 namespace Ishimotto.NuGet
@@ -17,6 +19,7 @@ namespace Ishimotto.NuGet
 
         private const string DEPENDENCIES_REPOSITORY_TYPE = "DependenciesRepositoryType";
 
+        private const string ALLOW_PRERELEASE = "AllowPreRealse";
         
 
         public NuGetSettings(Section settings)
@@ -28,6 +31,9 @@ namespace Ishimotto.NuGet
             RemoteRepositoryUrl = settings[REMOTE_REPOSITORY_URL].Value;
 
             DependenciesRepositoryType = Type.GetType(settings[DEPENDENCIES_REPOSITORY_TYPE].Value);
+
+            Prerelase = settings[ALLOW_PRERELEASE].Value.Split(',').Where(id => String.IsNullOrEmpty(id));
+
         }
 
         public string NuGetUrl { get; set; }
@@ -37,6 +43,8 @@ namespace Ishimotto.NuGet
         public string RemoteRepositoryUrl { get; set; }
 
         public Type DependenciesRepositoryType { get; set; }
+
+        public IEnumerable<string> Prerelase { get; set; }
         
     }
 

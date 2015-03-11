@@ -101,7 +101,7 @@
     <Compile Include="Dependencies\PackageExtentions.cs" />
     <Compile Include="Dependencies\Repositories\MongoDepndenciesRepository.cs" />
     <Compile Include="IDependenciesRepostoryInfo.cs" />
-    <Compile Include="INuGetInformation.cs" />
+    <Compile Include="NugetInformation.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetDownloadAsyncTask.cs" />
     <Compile Include="NuGetQuerier.cs" />
