@@ -27,6 +27,8 @@ namespace Ishimotto.NuGet
 
         private DependencyContainer mDependencyContainer;
 
+        private const int DEFAULT_PAGE_SIZE = 20;
+
         public NuGetDownloadAsyncTask(NuGetSettings settings,IDependenciesRepostoryInfo info, DateTime lastFetchTime)
         {
             mLogger = LogManager.GetLogger(typeof (NuGetDownloadAsyncTask));
@@ -46,8 +48,14 @@ namespace Ishimotto.NuGet
 
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
+            //Getting the must download packages from the configuration
+            var prerealsePackage = querier.FetchFrom(mSettings.Prerelase, mLastFetchTime, DEFAULT_PAGE_SIZE,
+                TimeSpan.FromSeconds(10),true).Select(package => package.ToDto());
+
             var packages =
-                 querier.FetchFrom(mLastFetchTime,20,TimeSpan.FromSeconds(60)).Select(package => package.ToDto());
+                 querier.FetchFrom(mLastFetchTime,DEFAULT_PAGE_SIZE,TimeSpan.FromSeconds(60)).Select(package => package.ToDto());
+
+            packages = packages.Concat(prerealsePackage);
 
             var updateTask =  mDependencyContainer.AddDependencies(packages);
 

@@ -44,6 +44,9 @@ namespace Ishimotto.NuGet
 
         public Type DependenciesRepositoryType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
+        /// </summary>
         public IEnumerable<string> Prerelase { get; set; }
         
     }

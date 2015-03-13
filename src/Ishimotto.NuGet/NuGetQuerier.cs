@@ -36,6 +36,20 @@ namespace Ishimotto.NuGet
             return new NuGetFetcher(query, pageSize, timeout);
         }
 
+        public IEnumerable<V2FeedPackage> FetchFrom(IEnumerable<string> ids, DateTime startTime, int pageSize,
+            TimeSpan timeout,bool allowPrerelease)
+        {
+            var query =
+             from package in mFeedContext.Packages
+             where package.Published >= startTime &&
+                   !package.IsPrerelease && package.IsLatestVersion &&
+                   (allowPrerelease || !package.IsPrerelease)&&
+                   ids.Contains(package.Id)
+             select package;
+
+            return new NuGetFetcher(query, pageSize, timeout);
+        }
+
         public IEnumerable<V2FeedPackage> FetchEverything(int pageSize, TimeSpan timeout)
         {
             var query =
@@ -81,5 +95,6 @@ namespace Ishimotto.NuGet
             }
         }
         
+
     }
 }
