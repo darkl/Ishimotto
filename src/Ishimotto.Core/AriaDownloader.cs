@@ -38,15 +38,11 @@ namespace Ishimotto.Core
         private const int MAX_URLS_IN_FILE = 5000;
         #endregion
 
-        #region Members
+        #region Data Members
 
         private ILog mLogger;
 
-        /// <summary>
-        /// Containers for links to download,
-        /// the Download method concat this collection with the links to download
-        ///
-        private ConcurrentBag<string> mLinks;
+        private FileWriter mLinksWriter;
 
         #endregion
 
@@ -99,10 +95,8 @@ namespace Ishimotto.Core
 
             DeleteTempFiles = deleteTempFiles;
 
-            mLinks = new ConcurrentBag<string>();
+            mLinksWriter = new FileWriter(downloadsDirectory,"links",MAX_URLS_IN_FILE,"txt");
         }
-
-
 
 
         /// <summary>
@@ -126,9 +120,6 @@ namespace Ishimotto.Core
         {
 
         }
-
-
-
 
         #endregion
 
@@ -158,7 +149,7 @@ namespace Ishimotto.Core
         /// <param name="links">A collection of links to add </param>
         public void AddLinks(IEnumerable<string> links)
         {
-            Parallel.ForEach(links, mLinks.Add);
+            mLinksWriter.Write(links);
         }
 
         /// <summary>
@@ -174,9 +165,19 @@ namespace Ishimotto.Core
                 throw new ArgumentException("The urls argument can not be null","urls");
             }
 
-            urls = urls.Concat(mLinks).Distinct();
+            if (!urls.Any())
+            {
+                mLogger.Warn("No files to download . . . cycle is done");
+            }
 
-            InnerDownload(urls);
+            if (mLogger.IsInfoEnabled)
+            {
+                mLogger.InfoFormat("Start downloading {0} link(s)", urls.Count());
+            }
+
+            mLinksWriter.Write(urls);
+            
+            InnerDownload();
         }
 
         /// <summary>
@@ -184,7 +185,7 @@ namespace Ishimotto.Core
         /// </summary>
         public void Download()
         {
-            InnerDownload(mLinks);
+            InnerDownload();
         }
 
         /// <summary>
@@ -196,52 +197,14 @@ namespace Ishimotto.Core
 
         #region Private Methods
 
-        private void InnerDownload(IEnumerable<string> urls)
+        private void InnerDownload()
         {
-            if (!urls.Any())
-            {
-                mLogger.Warn("No files to download . . . cycle is done");
-            }
+           
+            mLinksWriter.Flush();
 
-            if (mLogger.IsInfoEnabled)
-            {
-                mLogger.InfoFormat("Start downloading {0} file(s)", urls.Count());
-            }
-
-            mLogger.Debug("splitting the urls into files");
-
-            var paths = CreateLinkFiles(urls);
-
-            if (mLogger.IsDebugEnabled)
-            {
-                mLogger.Debug("splitting completed");
-            }
-
-            Parallel.ForEach(paths, DownloadFromFile);
+            Parallel.ForEach(mLinksWriter.FilesPaths, DownloadFromFile);
         }
-
-        /// <summary>
-        /// Create files contains all the urls for Atia to download
-        /// </summary>
-        /// <param name="urls">The urls to insert to the files</param>
-        /// <returns>collection of all created link files</returns>
-        private IEnumerable<string> CreateLinkFiles(IEnumerable<string> urls)
-        {
-
-            IEnumerable<string> filePaths;
-
-            var numOfFiles = Math.Max(urls.Count() / MAX_URLS_IN_FILE, 1);
-
-            using (var fileWriter = new FileWriter(DownloadsDirectory, "links", numOfFiles, "txt"))
-            {
-                fileWriter.WriteToFiles(urls);
-
-                filePaths = fileWriter.FilesPaths;
-            }
-
-            return filePaths;
-        }
-
+        
         /// <summary>
         /// Download urls from given file
         /// </summary>
@@ -473,7 +436,7 @@ namespace Ishimotto.Core
         /// <param name="link"></param>
         public void AddLink(string link)
         {
-            mLinks.Add(link);
+            mLinksWriter.Write(link);
         }
     }
 }
