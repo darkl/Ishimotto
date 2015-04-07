@@ -109,7 +109,7 @@ namespace Ishimotto.NuGet
 
             var packageBrodcaster = new BroadcastBlock<PackageDto>(dto => dto);
 
-            var completion = await InitTplBlocks(packageBrodcaster);
+            var completion = InitTplBlocks(packageBrodcaster);
 
             foreach (var packageDto in packages)
             {
@@ -118,7 +118,7 @@ namespace Ishimotto.NuGet
 
             packageBrodcaster.Complete();
 
-            await completion.ConfigureAwait(false);
+            await completion;
 
             mDownloader.Download();
         } 
