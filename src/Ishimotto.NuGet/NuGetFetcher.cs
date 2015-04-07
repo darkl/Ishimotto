@@ -70,10 +70,6 @@ namespace Ishimotto.NuGet
 
             bool finished =Task.WaitAll(new Task[] { task }, mTimeout);
 
-            while (!finished && task.Status == TaskStatus.WaitingToRun)
-            {
-                finished = Task.WaitAll(new Task[] { task }, mTimeout);
-            }
 
             if (finished)
             {

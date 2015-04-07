@@ -83,8 +83,9 @@ namespace Ishimotto.NuGet
 
                     mLogger.InfoFormat("Adding dependencies of {0} to the repository", package.Id);
 
-                    await DependenciesRepostory.AddDepndenciesAsync(validDependencies);
                 }
+
+                await DependenciesRepostory.AddDepndenciesAsync(validDependencies);
             }
 
             return validDependencies;

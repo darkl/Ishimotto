@@ -25,17 +25,7 @@ namespace Ishimotto.Console
 
             InitializeLogger();
 
-            //var ishimottoSettings = IshimottoConfig.GetConfig();
-
-            //NuGetQuerier querier = new NuGetQuerier(ishimottoSettings.NuGetUrl);
-
-            //mLogger.Info("Quering NuGet to get packages inforamtion");
-
-            //var result =
-            //     querier.FetchFrom(ishimottoSettings.LastFetchTime,20,TimeSpan.FromSeconds(40));
-            
-            //Download(ishimottoSettings, result);
-
+        
             mLogger.Info("Start Ishimotto process");
             
             Configuration conf = Configuration.LoadFromFile("Configuration.xml");

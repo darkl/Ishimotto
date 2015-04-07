@@ -167,16 +167,37 @@ namespace Ishimotto.Core
         /// <param name="urls">The urls of the files to download</param>
         public void Download(IEnumerable<string> urls)
         {
-
             if (urls == null)
             {
                 mLogger.Fatal("Got null as url's to download");
 
-                throw new ArgumentException("The urls argument can not be null");
+                throw new ArgumentException("The urls argument can not be null","urls");
             }
 
             urls = urls.Concat(mLinks).Distinct();
 
+            InnerDownload(urls);
+        }
+
+        /// <summary>
+        /// Downloads all the packages retrieved from the <see cref="AddLinks"/> method
+        /// </summary>
+        public void Download()
+        {
+            InnerDownload(mLinks);
+        }
+
+        /// <summary>
+        /// Downloads links to locaL repository
+        /// </summary>
+        /// <param name="urls">The urls of the items to download</param>
+        
+        #endregion
+
+        #region Private Methods
+
+        private void InnerDownload(IEnumerable<string> urls)
+        {
             if (!urls.Any())
             {
                 mLogger.Warn("No files to download . . . cycle is done");
@@ -198,10 +219,6 @@ namespace Ishimotto.Core
 
             Parallel.ForEach(paths, DownloadFromFile);
         }
-
-        #endregion
-
-        #region Private Methods
 
         /// <summary>
         /// Create files contains all the urls for Atia to download

@@ -11,6 +11,6 @@ LastFetchTime = 01/11/2014
 
 [MongoDepndenciesRepository]
 MongoConnectionString = "mongodb://localhost:27017"
-MongoDataBaseName = Nuggwetssv
-MongoCollectionName = Nuggwetssv
+MongoDataBaseName = Test
+MongoCollectionName = Test
 
