@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -315,6 +316,11 @@ namespace Ishimotto.Core
                 }
 
                 MaxConnections = 1;
+            }
+
+            else if (maxConnections > 16)
+            {
+                throw new ArgumentOutOfRangeException("maxConnections",maxConnections,"The max Connection parameter must be betweeb 1-16");
             }
 
             else

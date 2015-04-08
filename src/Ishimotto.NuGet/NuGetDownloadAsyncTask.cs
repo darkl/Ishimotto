@@ -90,7 +90,7 @@ namespace Ishimotto.NuGet
 
             mDependencyContainer = new DependencyContainer(mSettings.RemoteRepositoryUrl, info);
 
-            mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 50, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
+            mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
                                                 AriaSeverity.Error);
         }
         #endregion

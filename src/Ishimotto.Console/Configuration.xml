@@ -8,10 +8,10 @@ DependenciesRepositoryType = Ishimotto.NuGet.Dependencies.Repositories.MongoDepn
 AllowPreRealse = WampSharp
 
 [Ishimotto.General]
-LastFetchTime = 01/11/2014
+LastFetchTime = 08/04/2015
 
 [MongoDepndenciesRepository]
 MongoConnectionString = "mongodb://localhost:27017"
-MongoDataBaseName = Test
-MongoCollectionName = Test
+MongoDataBaseName = Ishimotto
+MongoCollectionName = Dependencies
 
