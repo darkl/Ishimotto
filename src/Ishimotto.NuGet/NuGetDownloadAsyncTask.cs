@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Ishimotto.Core;
 using Ishimotto.NuGet.Dependencies;
 using Ishimotto.NuGet.Dependencies.Repositories;
-using Ishimotto.NuGet.NuGetGallery;
 using log4net;
-using Microsoft.Build.Framework;
-
 
 namespace Ishimotto.NuGet
 {
@@ -22,6 +17,7 @@ namespace Ishimotto.NuGet
     public class NuGetDownloadAsyncTask : IAsyncTask
     {
         #region Data Members
+
         /// <summary>
         /// A logger
         /// </summary>
@@ -53,6 +49,7 @@ namespace Ishimotto.NuGet
         /// This downloader uses aria2c to download the packages, so make sure the tool exist in the Bin directory
         /// </remarks>
         private AriaDownloader mDownloader;
+
         #endregion
 
         #region Constants
@@ -67,7 +64,13 @@ namespace Ishimotto.NuGet
         /// This parameter is used in the tpl blocks initialiation to make sure that they wont ask for packages from the nuget feed, when they have enouth packages to handle
         /// </remarks>
         /// </summary>
-        private const int MAX_PAGES_TO_HANDLE = 5; 
+        private const int MAX_PAGES_TO_HANDLE = 5;
+
+        /// <summary>
+        /// Timeout to fetch a NuGet page
+        /// </summary>
+        private const int FETCH_TIMEOUT_MILLI = 45 *1000;
+
         #endregion
 
         #region Constructor
@@ -87,7 +90,7 @@ namespace Ishimotto.NuGet
 
             mDependencyContainer = new DependencyContainer(mSettings.RemoteRepositoryUrl, info);
 
-            mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 25, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
+            mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 50, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
                                                 AriaSeverity.Error);
         }
         #endregion
@@ -105,7 +108,7 @@ namespace Ishimotto.NuGet
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
             var packages =
-                 querier.FetchFrom(mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromSeconds(45)).Select(package => package.ToDto());
+                 querier.FetchFrom(mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromSeconds(FETCH_TIMEOUT_MILLI)).Select(package => package.ToDto());
 
 
             packages = packages.Concat(querier.FetchSpecificFrom(mSettings.Prerelase, mLastFetchTime, DEFAULT_PAGE_SIZE,
@@ -114,6 +117,8 @@ namespace Ishimotto.NuGet
             var packageBrodcaster = new BroadcastBlock<PackageDto>(dto => dto);
 
             var completion = InitTplBlocks(packageBrodcaster);
+
+            mLogger.Info("Resolving packgaes Dependencies");
 
             foreach (var packageDto in packages)
             {
@@ -124,12 +129,17 @@ namespace Ishimotto.NuGet
 
             await completion;
 
+            mLogger.Debug("Finsih resolving packgaes Dependencies");
+
+            mLogger.Info("Downloading packages");
+
             mDownloader.Download();
         } 
 
         #endregion
 
         #region Private Methods
+
         /// <summary>
         /// Initialize all tpl blocks
         /// </summary>
@@ -168,8 +178,7 @@ namespace Ishimotto.NuGet
                 dependencyResolver.Completion, containerUpdater.Completion);
 
         }
-
-
+        
         /// <summary>
         /// Resolve dependencies of a package
         /// </summary>
@@ -195,6 +204,7 @@ namespace Ishimotto.NuGet
                 await Task.WhenAll(taskList).ConfigureAwait(false);
             }
         } 
+
         #endregion
 
     }

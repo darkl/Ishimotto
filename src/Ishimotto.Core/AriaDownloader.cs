@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -33,15 +32,23 @@ namespace Ishimotto.Core
     {
 
         #region Constants
+
         private const string ARIA_EXE = "aria2c.exe";
 
         private const int MAX_URLS_IN_FILE = 5000;
+
         #endregion
 
         #region Data Members
 
+        /// <summary>
+        /// A Logger
+        /// </summary>
         private ILog mLogger;
 
+        /// <summary>
+        /// A writer to write all urls and split them into diffrent files
+        /// </summary>
         private FileWriter mLinksWriter;
 
         #endregion
@@ -216,7 +223,6 @@ namespace Ishimotto.Core
             {
                 mLogger.InfoFormat("Start downloading urls from {0}", filePath);
             }
-
 
             StringBuilder arguments = new StringBuilder(String.Concat(" -x ", MaxConnections, "  -i ", filePath, " -d ", DownloadsDirectory));
 

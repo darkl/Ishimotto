@@ -35,10 +35,19 @@ namespace Ishimotto.Core
         /// </summary>
         private ILog mLogger;
 
+        /// <summary>
+        /// The index of the last written file
+        /// </summary>
         private int mFileIndex;
 
+        /// <summary>
+        /// Reactive subject to enable thew write process when necessary
+        /// </summary>
         private ISubject<string> mLineSubject;
 
+        /// <summary>
+        /// Supscription disposal, needed for the <see cref="Dispose"/> method only
+        /// </summary>
         private IDisposable mSubscripitonDisposable;
 
         #endregion
@@ -191,6 +200,15 @@ namespace Ishimotto.Core
             mLineSubject.OnCompleted();
         }
 
+        /// <summary>
+        /// Writes new line to the current file
+        /// </summary>
+        /// <param name="line">The line to write</param>
+        public void Write(string line)
+        {
+            mLineSubject.OnNext(line);
+        }
+
     #endregion
 
         #region Private Methods
@@ -215,8 +233,6 @@ namespace Ishimotto.Core
                 Directory.CreateDirectory(mOutputDirectory);
             }
         }
-
-
 
         /// <summary>
         /// Validate that the arguments are valid
@@ -258,9 +274,6 @@ namespace Ishimotto.Core
         }
         #endregion
 
-        public void Write(string link)
-        {
-            mLineSubject.OnNext(link);
-        }
+        
     }
 }

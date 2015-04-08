@@ -6,11 +6,11 @@ using SharpConfig;
 namespace Ishimotto.NuGet
 {
     /// <summary>
-    /// Essentail settings to download NuGet packages
+    /// Essential settings to download NuGet packages
     /// </summary>
     public class NuGetSettings
     {
-
+        #region Constants
         private const string NUGET_URL = "NuGetUrl";
 
         private const string DOWNLOAD_DIRECTORY = "DownloadDirectory";
@@ -19,9 +19,15 @@ namespace Ishimotto.NuGet
 
         private const string DEPENDENCIES_REPOSITORY_TYPE = "DependenciesRepositoryType";
 
-        private const string ALLOW_PRERELEASE = "AllowPreRealse";
+        private const string ALLOW_PRERELEASE = "AllowPreRealse"; 
+        #endregion
         
+        #region Constructor
 
+        /// <summary>
+        /// Creates new instance of <see cref="NuGetSettings"/>
+        /// </summary>
+        /// <param name="settings">The section in the configuration containing the nuGet settings</param>
         public NuGetSettings(Section settings)
         {
             NuGetUrl = settings[NUGET_URL].Value;
@@ -32,37 +38,57 @@ namespace Ishimotto.NuGet
 
             DependenciesRepositoryType = Type.GetType(settings[DEPENDENCIES_REPOSITORY_TYPE].Value);
 
-            
+
             Prerelase = GetPrerelaseIds(settings);
 
-        }
+        } 
 
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Gets the prerelease packages to download from the configuration
+        /// </summary>
+        /// <param name="settings">The section in the configuration containing the nuGet settings</param>
+        /// <returns>The ids of the prerelease packages to download</returns>
         private static IEnumerable<string> GetPrerelaseIds(Section settings)
         {
             var ids = settings[ALLOW_PRERELEASE].Value;
 
             if (ids.Contains(","))
             {
-            return  ids.Split(',').Where(id => String.IsNullOrEmpty(id));
+                return ids.Split(',').Where(id => String.IsNullOrEmpty(id));
             }
             else
             {
-                return new[] {ids};
+                return new[] { ids };
             }
-        }
+        } 
+        #endregion
 
+        #region Properties
         public string NuGetUrl { get; set; }
 
+        /// <summary>
+        /// Directory to direct the downloads to
+        /// </summary>
         public string DownloadDirectory { get; set; }
 
+        /// <summary>
+        /// The url of NuGet Gallery
+        /// </summary>
         public string RemoteRepositoryUrl { get; set; }
 
+        /// <summary>
+        /// The type of the Repository to savwe all the dependencies
+        /// </summary>
         public Type DependenciesRepositoryType { get; set; }
 
         /// <summary>
         /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
         /// </summary>
-        public IEnumerable<string> Prerelase { get; set; }
+        public IEnumerable<string> Prerelase { get; set; } 
+        #endregion
         
     }
 
