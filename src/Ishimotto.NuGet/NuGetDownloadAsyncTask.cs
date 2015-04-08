@@ -108,8 +108,8 @@ namespace Ishimotto.NuGet
                  querier.FetchFrom(mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromSeconds(45)).Select(package => package.ToDto());
 
 
-            packages = querier.FetchSpecificFrom(mSettings.Prerelase, mLastFetchTime, DEFAULT_PAGE_SIZE,
-                TimeSpan.FromSeconds(45)).Select(pkg => pkg.ToDto()).Concat(packages);
+            packages = packages.Concat(querier.FetchSpecificFrom(mSettings.Prerelase, mLastFetchTime, DEFAULT_PAGE_SIZE,
+                TimeSpan.FromSeconds(45)).Select(pkg => pkg.ToDto()));
 
             var packageBrodcaster = new BroadcastBlock<PackageDto>(dto => dto);
 
