@@ -5,6 +5,7 @@ NuGetUrl = http://nuget.org/api/v2/package/
 DownloadDirectory = c:\NuGets\
 RemoteRepositoryUrl = https://packages.nuget.org/api/v2
 DependenciesRepositoryType = Ishimotto.NuGet.Dependencies.Repositories.MongoDepndenciesRepository, Ishimotto.NuGet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AllowPreRealse = WampSharp
 
 [Ishimotto.General]
 LastFetchTime = 01/11/2014

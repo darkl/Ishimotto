@@ -94,7 +94,54 @@ namespace Ishimotto.NuGet
                 }
             }
         }
-        
 
+        /// <summary>
+        /// Gets specific packages to download, including prerelease
+        /// </summary>
+        /// <param name="packagesIds">Packages to fetch</param>
+        /// <param name="fetchFrom">Minimum date to fetch from</param>
+        /// <param name="pageSize"></param>
+        /// <param name="timeout"></param>
+        /// <returns>Enumerable of all desired packages</returns>
+        public IEnumerable<V2FeedPackage> FetchSpecificFrom(IEnumerable<string> packagesIds, DateTime fetchFrom, int pageSize, TimeSpan timeout)
+        {
+            IQueryable<V2FeedPackage> query = null;
+
+            bool queryContainsData = false;
+
+            foreach (var id in packagesIds)
+            {
+                if (queryContainsData)
+                {
+                    query = query.Concat(GetQueryForId(fetchFrom,id));
+                }
+                else
+                {
+                    query = GetQueryForId(fetchFrom,id);
+                    queryContainsData = query.Count() >0;
+                }
+            }
+
+            return new NuGetFetcher(query, pageSize, timeout);
+        }
+
+        /// <summary>
+        /// Patchi method to avoid using contains which is not supported in v2 of NuGet feed
+        /// </summary>
+        /// <param name="fetchFrom">The minimum date to fetch the package from</param>
+        /// <param name="id">The id of the package to etch</param>
+        /// <returns>A query contains the desired package</returns>
+        /// <remarks>
+        /// When NuGet will publish V3 we will be able to use the Contains method and this method will be redunded
+        /// </remarks>
+        private IQueryable<V2FeedPackage> GetQueryForId(DateTime fetchFrom, string id)
+        {
+            var query =
+                from package in mFeedContext.Packages
+                where package.Published >= fetchFrom &&
+                      package.Id == id
+                select package;
+            return query;
+        }
     }
 }

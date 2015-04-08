@@ -32,8 +32,23 @@ namespace Ishimotto.NuGet
 
             DependenciesRepositoryType = Type.GetType(settings[DEPENDENCIES_REPOSITORY_TYPE].Value);
 
-            Prerelase = settings[ALLOW_PRERELEASE].Value.Split(',').Where(id => String.IsNullOrEmpty(id));
+            
+            Prerelase = GetPrerelaseIds(settings);
 
+        }
+
+        private static IEnumerable<string> GetPrerelaseIds(Section settings)
+        {
+            var ids = settings[ALLOW_PRERELEASE].Value;
+
+            if (ids.Contains(","))
+            {
+            return  ids.Split(',').Where(id => String.IsNullOrEmpty(id));
+            }
+            else
+            {
+                return new[] {ids};
+            }
         }
 
         public string NuGetUrl { get; set; }
