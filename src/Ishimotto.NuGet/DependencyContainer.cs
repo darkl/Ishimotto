@@ -61,14 +61,14 @@ namespace Ishimotto.NuGet
         {
             //TODO: Support diffrent kinds of frameworks
 
-            mLogger.InfoFormat("Downloading pdependencies of {0}", packageID);
+            mLogger.InfoFormat("Downloading dependencies of {0}", packageID);
 
             var package =
                 mNugetRepository.FindPackage(packageID);
 
             var dependencies =
                 from depndency in
-                    package.GetCompatiblePackageDependencies(new FrameworkName(".NETFramework,Version=v4.5"))
+                    GetCompetiblePackagesForAllFrameworks(package) 
                 where DependenciesRepostory.ShouldDownload(depndency)
                 select depndency.ToDto(mNugetRepository);
 
@@ -89,6 +89,18 @@ namespace Ishimotto.NuGet
             }
 
             return validDependencies;
+        }
+
+        private static IEnumerable<PackageDependency> GetCompetiblePackagesForAllFrameworks(IPackage package)
+        {
+            List<PackageDependency> depenencies = new List<PackageDependency>();
+
+            foreach (var framework in package.GetSupportedFrameworks())
+            {
+                depenencies.AddRange(package.GetCompatiblePackageDependencies(framework));
+            }
+
+            return depenencies.Distinct();
         }
 
         private static string FormatPackages(IEnumerable<PackageDto> validDependencies)
