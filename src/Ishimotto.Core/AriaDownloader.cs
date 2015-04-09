@@ -320,7 +320,7 @@ namespace Ishimotto.Core
 
             else if (maxConnections > 16)
             {
-                throw new ArgumentOutOfRangeException("maxConnections",maxConnections,"The max Connection parameter must be betweeb 1-16");
+                throw new ArgumentOutOfRangeException("maxConnections",maxConnections,"The max connection parameter must be between 1-16");
             }
 
             else
