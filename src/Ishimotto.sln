@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9E8C16
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishimotto.Tests", "Ishimotto.Tests\Ishimotto.Tests.csproj", "{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishimotto.NuGet.MySql", "Ishimotto.NuGet.MySql\Ishimotto.NuGet.MySql.csproj", "{195A8C10-0D95-4FD9-986E-5A6E34D51DCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5003730-3D2E-4E75-B4C3-73C54D7BAECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{195A8C10-0D95-4FD9-986E-5A6E34D51DCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{195A8C10-0D95-4FD9-986E-5A6E34D51DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{195A8C10-0D95-4FD9-986E-5A6E34D51DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{195A8C10-0D95-4FD9-986E-5A6E34D51DCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
