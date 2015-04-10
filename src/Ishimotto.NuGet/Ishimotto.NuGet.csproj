@@ -110,7 +110,7 @@
     <Compile Include="NuGetDownloadAsyncTask.cs" />
     <Compile Include="NuGetQuerier.cs" />
     <Compile Include="NuGetFetcher.cs" />
-    <Compile Include="DependencyContainer.cs" />
+    <Compile Include="DependenciesContainer.cs" />
     <Compile Include="NuGetSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\NuGetGallery\Reference.cs">

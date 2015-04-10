@@ -51,51 +51,6 @@ namespace Ishimotto.Console
             mLogger.Debug("Finish ishimotto process");
         }
 
-        //private async static void Download(IshimottoConfig ishimottoSettings, IEnumerable<V2FeedPackage> result)
-        //{
-        //    //Todo: must be a better solution
-
-        //    AriaDownloader downloader = new AriaDownloader(ishimottoSettings.DownloadsDirectory,
-        //        ishimottoSettings.DeleteTempFiles, ishimottoSettings.MaxConnections, ishimottoSettings.AriaLogPath,
-        //    ishimottoSettings.AriaLogLevel);
-
-        //    //Todo: config
-        //    var mongoRepository = new MongoDepndenciesRepository("mongodb://localhost:27017");
-
-        //    //Todo:// config
-        //    var container = new DependencyContainer(@"https://packages.nuget.org/api/v2", mongoRepository);
-
-        //    var dtos = result.Select(p => p.ToDto());
-            
-        //    await container.AddDependencies(dtos);
-
-        //    mLogger.Info("Resolving dependencis");
-            
-        //    HandleDependencies(dtos, container, downloader).Wait();
-
-        //    mLogger.Debug("Finish resolve dependencies");
-
-        //    mLogger.Info("Start downloading packages");
-
-        //    downloader.Download(dtos.Select(dto => dto.GetDownloadLink()));
-        //}
-
-        //private async static Task HandleDependencies(IEnumerable<PackageDto> packages, DependencyContainer pmDownloader, AriaDownloader downloader)
-        //{
-        //    Parallel.ForEach(packages, async package =>
-        //    {
-        //        var dependencies = await pmDownloader.GetDependenciesAsync(package);
-
-        //        if (dependencies.Count() > 0)
-        //        {
-        //            mLogger.InfoFormat("Adding Dependencies to download for {0}", package.ID);
-
-        //            downloader.AddLinks(dependencies.Select(d => d.GetDownloadLink()));
-
-        //            HandleDependencies(dependencies, pmDownloader, downloader);
-        //        }
-        //    });
-        //}
 
 
 

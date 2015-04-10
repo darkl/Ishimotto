@@ -16,7 +16,7 @@ namespace Ishimotto.NuGet
     /// <remarks>
     /// This downaloader download's packages (including their dependencies) using the NuGet's <see cref="PackageManager"/>
     /// </remarks>
-    public class DependencyContainer
+    public class DependenciesContainer
     {
         #region Data Members
 
@@ -34,14 +34,14 @@ namespace Ishimotto.NuGet
         #region Constructors
 
         /// <summary>
-        /// Creates new instance of <see cref="DependencyContainer"/>
+        /// Creates new instance of <see cref="DependenciesContainer"/>
         /// </summary>
         /// <param name="nugetRepository">path to the source NuGet repository (NuGet website)</param>
         /// <param name="localRepository">path to the destenation repository</param>
         /// <param name="dependenciesRepostoryInfo">Entity to check if package's depndencies are needed</param>
-        public DependencyContainer(string nugetRepository, IDependenciesRepostoryInfo dependenciesRepostoryInfo)
+        public DependenciesContainer(string nugetRepository, IDependenciesRepostoryInfo dependenciesRepostoryInfo)
         {
-            mLogger = LogManager.GetLogger(typeof(DependencyContainer).Name);
+            mLogger = LogManager.GetLogger(typeof(DependenciesContainer).Name);
 
             mNugetRepository = PackageRepositoryFactory.Default.CreateRepository(nugetRepository);
 
