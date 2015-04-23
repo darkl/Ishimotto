@@ -71,7 +71,7 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
                     {
                         var options = new MongoInsertOptions()
                         {
-                            CheckElementNames = true,
+                        
                             Flags = InsertFlags.ContinueOnError,
                             
                         };

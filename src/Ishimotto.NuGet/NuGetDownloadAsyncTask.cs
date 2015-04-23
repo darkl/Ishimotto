@@ -40,7 +40,7 @@ namespace Ishimotto.NuGet
         /// This container is used to check if a package has dependencies that needed to be downloaded, and if so it update the <see cref="IDependenciesRepostory"/>
         /// about the new dependencies
         /// </remarks>
-        private DependencyContainer mDependencyContainer;
+        private DependenciesContainer mDependenciesContainer;
 
         /// <summary>
         /// A dopwnloader to download all packages
@@ -88,7 +88,7 @@ namespace Ishimotto.NuGet
 
             mLastFetchTime = lastFetchTime;
 
-            mDependencyContainer = new DependencyContainer(mSettings.RemoteRepositoryUrl, info);
+            mDependenciesContainer = new DependenciesContainer(mSettings.RemoteRepositoryUrl, info);
 
             mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
                                                 AriaSeverity.Error);
@@ -105,6 +105,9 @@ namespace Ishimotto.NuGet
         {
             NuGetQuerier querier = new NuGetQuerier(mSettings.RemoteRepositoryUrl);
 
+
+            Console.WriteLine("Fetching Packages from: " + mLastFetchTime);
+
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
             var packages =
@@ -120,6 +123,9 @@ namespace Ishimotto.NuGet
 
             mLogger.Info("Resolving packgaes Dependencies");
 
+
+            Console.WriteLine("Resolving dependencies");
+
             foreach (var packageDto in packages)
             {
                 packageBrodcaster.Post(packageDto);
@@ -130,6 +136,8 @@ namespace Ishimotto.NuGet
             await completion;
 
             mLogger.Debug("Finsih resolving packgaes Dependencies");
+
+            Console.WriteLine("Downloading packages");
 
             mLogger.Info("Downloading packages");
 
@@ -158,7 +166,7 @@ namespace Ishimotto.NuGet
 
             dependenciesBatch = new BatchBlock<PackageDto>(DEFAULT_PAGE_SIZE);
 
-            containerUpdater = new ActionBlock<PackageDto[]>(async unit => await mDependencyContainer.AddDependencies(unit));
+            containerUpdater = new ActionBlock<PackageDto[]>(async unit => await mDependenciesContainer.AddDependencies(unit));
 
             dependencyResolver = new ActionBlock<PackageDto>(async package => await ResolveDependnecies(package),
                 new ExecutionDataflowBlockOptions { BoundedCapacity = DEFAULT_PAGE_SIZE * MAX_PAGES_TO_HANDLE });
@@ -186,7 +194,7 @@ namespace Ishimotto.NuGet
         /// <returns>Task completed when all the dependencies of <see cref="package"/> has been resolved</returns>
         private async Task ResolveDependnecies(PackageDto package)
         {
-            var dependencies = await mDependencyContainer.GetDependenciesAsync(package, updateRepository: true).ConfigureAwait(false);
+            var dependencies = await mDependenciesContainer.GetDependenciesAsync(package, updateRepository: true).ConfigureAwait(false);
 
             if (dependencies.Any())
             {

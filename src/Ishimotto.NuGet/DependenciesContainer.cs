@@ -95,7 +95,9 @@ namespace Ishimotto.NuGet
         {
             List<PackageDependency> depenencies = new List<PackageDependency>();
 
-            foreach (var framework in package.GetSupportedFrameworks())
+            var targetFrameworks = package.DependencySets.Select(set => set.TargetFramework);
+
+            foreach (var framework in targetFrameworks)
             {
                 depenencies.AddRange(package.GetCompatiblePackageDependencies(framework));
             }
