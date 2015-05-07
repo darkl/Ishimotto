@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Ishimotto.Core;
 using Ishimotto.NuGet;
-using Ishimotto.NuGet.Dependencies;
-using Ishimotto.NuGet.Dependencies.Repositories;
-using Ishimotto.NuGet.NuGetGallery;
 using log4net;
 using log4net.Config;
 using SharpConfig;
