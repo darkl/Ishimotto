@@ -80,7 +80,7 @@ namespace Ishimotto.NuGet.Dependencies
         {
             ID = id;
             SemanticVersion = semanticVersion;
-            InsertionTime = DateTime.Now.Date.ToUniversalTime();
+            InsertionTime = DateTime.Today;
         }
 
         #endregion
