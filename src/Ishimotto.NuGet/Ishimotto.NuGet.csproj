@@ -112,6 +112,7 @@
     <Compile Include="Dependencies\PackageDto.cs" />
     <Compile Include="Dependencies\PackageExtentions.cs" />
     <Compile Include="Dependencies\Repositories\MongoDepndenciesRepository.cs" />
+    <Compile Include="IDependenciesContainer.cs" />
     <Compile Include="IDependenciesRepostoryInfo.cs" />
     <Compile Include="NugetInformation.cs" />
     <Compile Include="NuGetDownloader.cs" />

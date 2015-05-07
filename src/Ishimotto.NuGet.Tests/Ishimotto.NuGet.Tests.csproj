@@ -65,13 +65,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="PackageManagerDownloaderTest.cs" />
+    <Compile Include="NuGetDownloadAsyncTaskTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Ishimotto.Core\Ishimotto.Core.csproj">
+      <Project>{A1832391-92A3-4E4B-85A1-1F34C6BF2508}</Project>
+      <Name>Ishimotto.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ishimotto.NuGet\Ishimotto.NuGet.csproj">
       <Project>{1DB1D0F0-370E-477E-8FEC-9D47237578DD}</Project>
       <Name>Ishimotto.NuGet</Name>

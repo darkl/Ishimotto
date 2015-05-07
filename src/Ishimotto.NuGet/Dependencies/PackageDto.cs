@@ -18,10 +18,10 @@ namespace Ishimotto.NuGet.Dependencies
         /// </summary>
         public string ID { get; set; }
 
-        [BsonIgnore]
         /// <summary>
         /// The version of the Package
         /// </summary>
+        [BsonIgnore]
         public SemanticVersion SemanticVersion { get; set; }
 
         public string Version
@@ -39,11 +39,9 @@ namespace Ishimotto.NuGet.Dependencies
             set { mMongoId = value; }
         }
 
-        public  string FormatPackageID()
-        {
-            return String.Format("{0}.{1}",ID,Version);
-        }
 
+        public DateTime InsertionTime { get; private set; }
+        
         #endregion
 
         #region Constructors
@@ -82,6 +80,7 @@ namespace Ishimotto.NuGet.Dependencies
         {
             ID = id;
             SemanticVersion = semanticVersion;
+            InsertionTime = DateTime.Now.Date.ToUniversalTime();
         }
 
         #endregion
@@ -94,6 +93,15 @@ namespace Ishimotto.NuGet.Dependencies
         {
             return String.Format("{0}/{1}/{2}", "http://nuget.org/api/v2/package/", ID,
                 SemanticVersion);
+        }
+
+        /// <summary>
+        /// Gets a fotmatted id to use as the repository unique key
+        /// </summary>
+        /// <returns>formatted id in the format: {ID}.{Version}</returns>
+        public string FormatPackageID()
+        {
+            return String.Format("{0}.{1}", ID, Version);
         }
 
         #region IEquatable Implemntation

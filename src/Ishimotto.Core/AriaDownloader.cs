@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -29,7 +28,7 @@ namespace Ishimotto.Core
     /// <summary>
     /// Download data using Aria2 tool
     /// </summary>
-    public class AriaDownloader
+    public class AriaDownloader : IAriaDownloader
     {
 
         #region Constants

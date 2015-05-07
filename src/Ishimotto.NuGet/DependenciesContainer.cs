@@ -16,7 +16,7 @@ namespace Ishimotto.NuGet
     /// <remarks>
     /// This downaloader download's packages (including their dependencies) using the NuGet's <see cref="PackageManager"/>
     /// </remarks>
-    public class DependenciesContainer
+    public class DependenciesContainer : IDependenciesContainer
     {
         #region Data Members
 

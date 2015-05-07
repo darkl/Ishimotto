@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Ishimotto.Core;
@@ -26,7 +27,7 @@ namespace Ishimotto.NuGet
         /// <summary>
         /// Setting to initialize the <see cref="NuGetDownloadAsyncTask"/>
         /// </summary>
-        private NuGetSettings mSettings;
+        private INuGetSettings mSettings;
 
         /// <summary>
         /// The minimum date to fetch packages from
@@ -40,7 +41,7 @@ namespace Ishimotto.NuGet
         /// This container is used to check if a package has dependencies that needed to be downloaded, and if so it update the <see cref="IDependenciesRepostory"/>
         /// about the new dependencies
         /// </remarks>
-        private DependenciesContainer mDependenciesContainer;
+        private IDependenciesContainer mDependenciesContainer;
 
         /// <summary>
         /// A dopwnloader to download all packages
@@ -48,7 +49,7 @@ namespace Ishimotto.NuGet
         /// <remarks>
         /// This downloader uses aria2c to download the packages, so make sure the tool exist in the Bin directory
         /// </remarks>
-        private AriaDownloader mDownloader;
+        private IAriaDownloader mDownloader;
 
         #endregion
 
@@ -69,7 +70,7 @@ namespace Ishimotto.NuGet
         /// <summary>
         /// Timeout to fetch a NuGet page
         /// </summary>
-        private const int FETCH_TIMEOUT_MILLI = 45 *1000;
+        private const int FETCH_TIMEOUT_MILLI = 45 * 1000;
 
         #endregion
 
@@ -81,18 +82,32 @@ namespace Ishimotto.NuGet
         /// <param name="info">Settings to initialize the <see cref="IDependenciesRepostory"/></param>
         /// <param name="lastFetchTime">The minimum date to fetch packages from</param>
         public NuGetDownloadAsyncTask(NuGetSettings settings, IDependenciesRepostoryInfo info, DateTime lastFetchTime)
+            : this(settings, new DependenciesContainer(settings.RemoteRepositoryUrl, info))
         {
+            mLastFetchTime = lastFetchTime;
+        }
+
+
+        public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container): this(settings,container,new AriaDownloader(settings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
+                                                AriaSeverity.Error))
+        {
+        }
+
+        public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container,IAriaDownloader downloader)
+        {
+
+            
+
+
             mLogger = LogManager.GetLogger(typeof(NuGetDownloadAsyncTask));
+
+            mDependenciesContainer = container;
 
             mSettings = settings;
 
-            mLastFetchTime = lastFetchTime;
-
-            mDependenciesContainer = new DependenciesContainer(mSettings.RemoteRepositoryUrl, info);
-
-            mDownloader = new AriaDownloader(mSettings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
-                                                AriaSeverity.Error);
+            mDownloader = downloader;
         }
+
         #endregion
 
         #region Public Methods
@@ -142,7 +157,7 @@ namespace Ishimotto.NuGet
             mLogger.Info("Downloading packages");
 
             mDownloader.Download();
-        } 
+        }
 
         #endregion
 
@@ -166,9 +181,9 @@ namespace Ishimotto.NuGet
 
             dependenciesBatch = new BatchBlock<PackageDto>(DEFAULT_PAGE_SIZE);
 
-            containerUpdater = new ActionBlock<PackageDto[]>(async unit => await mDependenciesContainer.AddDependencies(unit));
+            containerUpdater = new ActionBlock<PackageDto[]>((Func<PackageDto[], Task>)mDependenciesContainer.AddDependencies);
 
-            dependencyResolver = new ActionBlock<PackageDto>(async package => await ResolveDependnecies(package),
+            dependencyResolver = new ActionBlock<PackageDto>((Func<PackageDto, Task>)ResolveDependnecies,
                 new ExecutionDataflowBlockOptions { BoundedCapacity = DEFAULT_PAGE_SIZE * MAX_PAGES_TO_HANDLE });
 
             dependenciesBatch.LinkTo(containerUpdater, new DataflowLinkOptions { PropagateCompletion = true });
@@ -186,34 +201,40 @@ namespace Ishimotto.NuGet
                 dependencyResolver.Completion, containerUpdater.Completion);
 
         }
-        
+
         /// <summary>
         /// Resolve dependencies of a package
         /// </summary>
         /// <param name="package">The package to resolve dependencies for</param>
         /// <returns>Task completed when all the dependencies of <see cref="package"/> has been resolved</returns>
-        private async Task ResolveDependnecies(PackageDto package)
+        internal async Task ResolveDependnecies(PackageDto package)
         {
             var dependencies = await mDependenciesContainer.GetDependenciesAsync(package, updateRepository: true).ConfigureAwait(false);
 
             if (dependencies.Any())
             {
-                var taskList = new List<Task>();
-
                 mLogger.InfoFormat("Adding Dependencies to download for {0}", package.ID);
 
                 mDownloader.AddLinks(dependencies.Select(d => d.GetDownloadLink()));
 
+                Subject<PackageDto> dependenciesSubject = new Subject<PackageDto>();
+
+                dependenciesSubject.Subscribe(dependency => ResolveDependnecies(dependency),
+                    () => mLogger.Info("All dependencies of " + package.ID + " have been resolved"));
+
                 foreach (var dependency in dependencies)
                 {
-                    taskList.Add(ResolveDependnecies(dependency));
+                    dependenciesSubject.OnNext(dependency);
                 }
 
-                await Task.WhenAll(taskList).ConfigureAwait(false);
+                dependenciesSubject.OnCompleted();
+
+                await dependenciesSubject.LastOrDefaultAsync();
             }
-        } 
+        }
 
         #endregion
+
 
     }
 }

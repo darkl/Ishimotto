@@ -5,10 +5,35 @@ using SharpConfig;
 
 namespace Ishimotto.NuGet
 {
+    public interface INuGetSettings
+    {
+        string NuGetUrl { get; set; }
+
+        /// <summary>
+        /// Directory to direct the downloads to
+        /// </summary>
+        string DownloadDirectory { get; set; }
+
+        /// <summary>
+        /// The url of NuGet Gallery
+        /// </summary>
+        string RemoteRepositoryUrl { get; set; }
+
+        /// <summary>
+        /// The type of the Repository to savwe all the dependencies
+        /// </summary>
+        Type DependenciesRepositoryType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
+        /// </summary>
+        IEnumerable<string> Prerelase { get; set; }
+    }
+
     /// <summary>
     /// Essential settings to download NuGet packages
     /// </summary>
-    public class NuGetSettings
+    public class NuGetSettings : INuGetSettings
     {
         #region Constants
         private const string NUGET_URL = "NuGetUrl";
