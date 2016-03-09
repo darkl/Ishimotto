@@ -1,9 +1,9 @@
 ﻿<Window x:Class="Ishimotto.NuGet.Ui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:indicator="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
+        xmlns:indicator="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF" 
 
-        Title="Ishimotto" Height="400" MinWidth="400" Width="400">
+        Title="Ishimotto" Height="400" MinWidth="430" Width="430">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -35,6 +35,8 @@
                            x:Name="PackagesIdsPlaceHolder" />
             <RowDefinition Height="20"
                            x:Name="IncludePreReleasePlaceHolder" />
+            <RowDefinition Height="20"
+                           x:Name="SpecificPackagesOnlyPlaceHolder" />
             <RowDefinition Height="10" />
             <RowDefinition Height="50"
                            x:Name="DownloadButtonPlaceHolder" />
@@ -59,24 +61,31 @@
             Grid.Column="2" 
             Text="Pick Date..."
             FirstDayOfWeek="Sunday"
-             DisplayDateEnd="{Binding MaxFetchingDate,Mode=OneWay}" Margin="0,2" Grid.RowSpan="2"/>
+             DisplayDateEnd="{Binding MaxFetchingDate,Mode=OneWay}" Grid.RowSpan="2"/>
 
         <Label Content="Packages Ids (use [,] delimiter):"
                Grid.Row="4"
                Grid.Column="1"
-               Grid.RowSpan="3" Margin="0,4"/>
+               Grid.RowSpan="4"
+               VerticalAlignment="Top"/>
         <TextBox x:Name="PackagesIds"
                  Grid.Column="2"
                  Grid.Row="4"
-                 Text="{Binding PackagesIds, Mode=OneWayToSource}" Margin="0,4,0,15" Grid.RowSpan="2"/>
+                 Text="{Binding PackagesIds, Mode=OneWayToSource}"/>
         <CheckBox Content="Include Pre Release version"
                   Grid.Column="2"
                   Grid.Row="5"
-                  IsChecked="{Binding IncludePreRelease,Mode=TwoWay}" Margin="0,5,0,4" Grid.RowSpan="2" />
+                  IsChecked="{Binding IncludePreRelease,Mode=TwoWay}" />
 
+
+        <CheckBox Content="Download specified packages only"
+                  Grid.Column="2"
+                  Grid.Row="6"
+                  IsChecked="{Binding IsSpecifiedPackagesOnly,Mode=TwoWay}" 
+                  />
 
         <Button Content="Download"
-                Grid.Row="7"
+                Grid.Row="8"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
                 Command="{Binding DownloadCommand}"
@@ -85,7 +94,7 @@
 
         <indicator:LoadingIndicator Grid.Column="1" 
                                     Grid.ColumnSpan="2"
-                                    Grid.Row="9" 
+                                    Grid.Row="10" 
                                     SpeedRatio="0.9" 
                                     IsActive="{Binding Path=IsBusy}" 
                                     HorizontalAlignment="Center"
@@ -95,7 +104,7 @@
 
         <Label Content="{Binding Path=Status}"
                Background="Linen" 
-               Grid.Row="10"
+               Grid.Row="11"
             Grid.ColumnSpan="4" />
         
         

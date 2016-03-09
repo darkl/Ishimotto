@@ -32,7 +32,9 @@ namespace Ishimotto.NuGet.Ui
         /// <summary>
         /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
         /// </summary>
-        public IEnumerable<string> Prerelase { get; set; } 
+        public IEnumerable<string> Prerelase { get; set; }
+
+        public IEnumerable<string> PackagesIds { get; set; }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

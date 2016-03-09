@@ -31,9 +31,9 @@ namespace Ishimotto.NuGet.Ui
 
             _viewModel.IsDownloadCommandEnabled = false;
 
-            if (_viewModel.IncludePreRelease)
+            if (_viewModel.IsSpecifiedPackagesOnly)
             {
-                _viewModel.DownloadInfoModel.Prerelase = _viewModel.PackagesIds.Split(',');
+                _viewModel.DownloadInfoModel.PackagesIds = _viewModel.PackagesIds.Split(',');
             }
 
             var nugetTask = new NuGetDownloadAsyncTask(_viewModel.DownloadInfoModel,_viewModel.FetchingDate,(status) => _viewModel.Status = status);

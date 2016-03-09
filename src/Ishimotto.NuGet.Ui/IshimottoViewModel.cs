@@ -98,7 +98,21 @@ namespace Ishimotto.NuGet.Ui
                 OnPropertyChanged();
             }
         }
-        
+
+
+
+        private bool mIsSpecifiedPackagesOnly;
+
+        public bool IsSpecifiedPackagesOnly
+        {
+            get { return mIsSpecifiedPackagesOnly; }
+            set
+            {
+                mIsSpecifiedPackagesOnly = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         
         public DownloadPakagesCommand DownloadCommand { get; set; }

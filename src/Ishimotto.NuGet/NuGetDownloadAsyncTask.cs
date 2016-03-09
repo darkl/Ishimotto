@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -142,21 +143,28 @@ namespace Ishimotto.NuGet
 
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
-            var packages =
-                 querier.FetchFrom(mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromSeconds(FETCH_TIMEOUT_MILLI)).Select(package => package.ToDto());
 
+            IEnumerable<PackageDto> packages = null;
 
-            packages = packages.Concat(querier.FetchSpecificFrom(mSettings.Prerelase, mLastFetchTime, DEFAULT_PAGE_SIZE,
-                TimeSpan.FromSeconds(45)).Select(pkg => pkg.ToDto()));
+            if (mSettings.PackagesIds.Any())
+            {
+                packages = querier.FetchSpecificFrom(mSettings.PackagesIds, mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromMilliseconds(FETCH_TIMEOUT_MILLI),mSettings.Prerelase.Any()).Select(package => package.ToDto());
+            }
+            else
+            {
+                packages = querier.FetchFrom(mLastFetchTime, DEFAULT_PAGE_SIZE, TimeSpan.FromMilliseconds(FETCH_TIMEOUT_MILLI)).Select(package => package.ToDto());
+            }
+            
 
             var packageBrodcaster = new BroadcastBlock<PackageDto>(dto => dto);
 
             var completion = InitTplBlocks(packageBrodcaster);
 
             mLogger.Info("Resolving packgaes Dependencies");
-
-
+            
             mUpdateStatusAction("Resolving dependencies");
+
+           
 
             foreach (var packageDto in packages)
             {
@@ -167,7 +175,7 @@ namespace Ishimotto.NuGet
 
             await completion.ConfigureAwait(false);
 
-            mLogger.Debug("Finsih resolving packgaes Dependencies");
+            mLogger.Debug("Finish resolving packgaes Dependencies");
 
             mUpdateStatusAction("Downloading packages, this may take a while ...");
 

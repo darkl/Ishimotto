@@ -102,8 +102,9 @@ namespace Ishimotto.NuGet
         /// <param name="fetchFrom">Minimum date to fetch from</param>
         /// <param name="pageSize"></param>
         /// <param name="timeout"></param>
+        /// <param name="any"></param>
         /// <returns>Enumerable of all desired packages</returns>
-        public IEnumerable<V2FeedPackage> FetchSpecificFrom(IEnumerable<string> packagesIds, DateTime fetchFrom, int pageSize, TimeSpan timeout)
+        public IEnumerable<V2FeedPackage> FetchSpecificFrom(IEnumerable<string> packagesIds, DateTime fetchFrom, int pageSize, TimeSpan timeout, bool includePreRelease)
         {
             IQueryable<V2FeedPackage> query = null;
 
@@ -113,11 +114,11 @@ namespace Ishimotto.NuGet
             {
                 if (queryContainsData)
                 {
-                    query = query.Concat(GetQueryForId(fetchFrom,id));
+                    query = query.Concat(GetQueryForId(fetchFrom,id,includePreRelease));
                 }
                 else
                 {
-                    query = GetQueryForId(fetchFrom,id);
+                    query = GetQueryForId(fetchFrom,id,includePreRelease);
                     queryContainsData = query.Count() >0;
                 }
             }
@@ -130,16 +131,20 @@ namespace Ishimotto.NuGet
         /// </summary>
         /// <param name="fetchFrom">The minimum date to fetch the package from</param>
         /// <param name="id">The id of the package to etch</param>
+        /// <param name="includePreRelease"></param>
         /// <returns>A query contains the desired package</returns>
-        /// <remarks>
-        /// When NuGet will publish V3 we will be able to use the Contains method and this method will be redunded
+        /// <remarks> When NuGet will publish V3 we will be able to use the Contains method and this method will be redunded
         /// </remarks>
-        private IQueryable<V2FeedPackage> GetQueryForId(DateTime fetchFrom, string id)
+        private IQueryable<V2FeedPackage> GetQueryForId(DateTime fetchFrom, string id, bool includePreRelease)
         {
             var query =
                 from package in mFeedContext.Packages
                 where package.Published >= fetchFrom &&
-                      package.Id == id
+                      package.Id == id &&
+                      package.IsLatestVersion&&
+                      package.IsPrerelease == includePreRelease
+                      
+
                 select package;
             return query;
         }

@@ -28,6 +28,8 @@ namespace Ishimotto.NuGet
         /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
         /// </summary>
         IEnumerable<string> Prerelase { get; set; }
+
+         IEnumerable<string> PackagesIds { get;}
     }
 
     /// <summary>
@@ -62,7 +64,6 @@ namespace Ishimotto.NuGet
             RemoteRepositoryUrl = settings[REMOTE_REPOSITORY_URL].Value;
 
             DependenciesRepositoryType = Type.GetType(settings[DEPENDENCIES_REPOSITORY_TYPE].Value);
-
 
             Prerelase = GetPrerelaseIds(settings);
 
@@ -112,7 +113,14 @@ namespace Ishimotto.NuGet
         /// <summary>
         /// Gets or sets the list of packages that must be downloaded, even if the lastest version is Prerelease
         /// </summary>
-        public IEnumerable<string> Prerelase { get; set; } 
+        public IEnumerable<string> Prerelase { get; set; }
+
+        public IEnumerable<string> PackagesIds
+        {
+            get { return Enumerable.Empty<string>(); }
+            
+        }
+
         #endregion
         
     }
