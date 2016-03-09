@@ -169,7 +169,7 @@ namespace Ishimotto.NuGet
 
             mLogger.Debug("Finsih resolving packgaes Dependencies");
 
-            mUpdateStatusAction("Downloading packages");
+            mUpdateStatusAction("Downloading packages, this may take a while ...");
 
             mLogger.Info("Downloading packages");
 
