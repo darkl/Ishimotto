@@ -45,19 +45,27 @@ namespace Ishimotto.NuGet
 
             mNugetRepository = PackageRepositoryFactory.Default.CreateRepository(nugetRepository);
 
+
             DependenciesRepostory = dependenciesRepostoryInfo.Build();
+        }
+
+        protected DependenciesContainer(string remoteRepositoryUrl) :this(remoteRepositoryUrl,new NoRepositoryInfo())
+        {
+           
         }
 
         #endregion
 
         #region Public Methods
 
-        public async Task<IEnumerable<PackageDto>> GetDependenciesAsync(PackageDto packageDto, bool updateRepository = true)
+        public virtual  Task<IEnumerable<PackageDto>> GetDependenciesAsync(PackageDto packageDto, bool updateRepository = true)
         {
-            return await GetDependenciesAsync(packageDto.ID, updateRepository);
+            return  GetDependenciesAsync(packageDto.ID, updateRepository);
         }
 
-        public async Task<IEnumerable<PackageDto>> GetDependenciesAsync(string packageID, bool updateRepository = true)
+        
+
+        public virtual async Task<IEnumerable<PackageDto>> GetDependenciesAsync(string packageID, bool updateRepository = true)
         {
             //TODO: Support diffrent kinds of frameworks
 
@@ -85,7 +93,7 @@ namespace Ishimotto.NuGet
 
                 }
 
-                await DependenciesRepostory.AddDepndenciesAsync(validDependencies);
+                await DependenciesRepostory.AddDepndenciesAsync(validDependencies).ConfigureAwait(false);
             }
 
             return validDependencies;
@@ -112,12 +120,53 @@ namespace Ishimotto.NuGet
 
         #endregion
 
-        public async Task AddDependencies(IEnumerable<PackageDto> dtos)
+        public virtual Task AddDependencies(IEnumerable<PackageDto> dtos)
         {
             mLogger.InfoFormat("Add packages to the repository");
 
-            await DependenciesRepostory.AddDepndenciesAsync(dtos);
+            return DependenciesRepostory.AddDepndenciesAsync(dtos);
         }
     }
 
+    public class NoRepositoryInfo : IDependenciesRepostoryInfo
+    {
+        public IDependenciesRepostory Build()
+        {
+            return new EmptyRepository();
+        }
+
+        public Type RepositoryType
+        {
+            get { return typeof (EmptyRepository); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public string[] Properties
+        {
+            get { return new string[0]; }
+            set { throw new NotImplementedException(); }
+        }
+    }
+
+    public class EmptyRepository : IDependenciesRepostory
+    {
+        public bool IsExist(PackageDto dependency)
+        {
+            return false;
+        }
+
+        public async Task AddDepndenciesAsync(IEnumerable<PackageDto> dependencies)
+        {
+        }
+
+        public async Task AddDependnecyAsync(PackageDto package)
+        {
+            return;
+        }
+
+        public bool ShouldDownload(PackageDependency dependency)
+        {
+            return true;
+        }
+    }
 }
