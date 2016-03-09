@@ -65,7 +65,7 @@
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
                 Command="{Binding DownloadCommand}"
-                IsEnabled="{Binding IsCommandEnabled}" />
+                IsEnabled="{Binding IsDownloadCommandEnabled}" />
 
 
     </Grid>

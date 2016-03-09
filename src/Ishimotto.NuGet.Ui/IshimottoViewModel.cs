@@ -25,6 +25,7 @@ namespace Ishimotto.NuGet.Ui
             {
                 _fetchingDate = value;
                 OnPropertyChanged();
+                OnPropertyChanged("IsDownloadCommandEnabled");
             }
         }
 
@@ -66,7 +67,11 @@ namespace Ishimotto.NuGet.Ui
         public bool IsDownloadCommandEnabled
         {
             get { return _isDownloadCommandEnabled && FetchingDate.CompareTo(default(DateTime)) >0; }
-            set { _isDownloadCommandEnabled = value; }
+            set
+            {
+                _isDownloadCommandEnabled = value;
+                OnPropertyChanged();
+            }
         }
 
         
@@ -80,6 +85,8 @@ namespace Ishimotto.NuGet.Ui
             FetchingDate = DateTime.Now.AddDays(-18);
 
             DownloadInfoModel = info;
+
+            IsDownloadCommandEnabled = true;
         }
 
         [NotifyPropertyChangedInvocator]

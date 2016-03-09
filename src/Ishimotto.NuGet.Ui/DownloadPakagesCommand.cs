@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using NuGet;
 
@@ -30,7 +31,7 @@ namespace Ishimotto.NuGet.Ui
             
             var nugetTask = new NuGetDownloadAsyncTask(_viewModel.DownloadInfoModel,_viewModel.FetchingDate);
 
-            nugetTask.ExecuteAsync().ContinueWith((t) => _viewModel.IsDownloadCommandEnabled = true);
+            Task.Run(async() => await nugetTask.ExecuteAsync().ConfigureAwait(false)).ContinueWith((t) => _viewModel.IsDownloadCommandEnabled = true);
 
 
         }
