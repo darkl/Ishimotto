@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Ishimotto.Core;
@@ -51,8 +52,11 @@ namespace Ishimotto.NuGet
         /// </remarks>
         private IAriaDownloader mDownloader;
 
+        private int mPackageIndex;
+
 
         private Action<string> mUpdateStatusAction;
+        private object mUpdateStatus;
 
         #endregion
 
@@ -75,6 +79,8 @@ namespace Ishimotto.NuGet
         /// </summary>
         private const int FETCH_TIMEOUT_MILLI = 45 * 1000;
 
+        private const int UPDATE_RATE = 5;
+
         #endregion
 
         #region Constructor
@@ -91,13 +97,14 @@ namespace Ishimotto.NuGet
         }
 
 
-        private NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container): this(settings,container,new AriaDownloader(settings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
-                                                AriaSeverity.Error))
+        private NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container)
+            : this(settings, container, new AriaDownloader(settings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
+                AriaSeverity.Error))
         {
             mUpdateStatusAction = Console.WriteLine;
         }
 
-        public NuGetDownloadAsyncTask(INuGetSettings settings, DateTime lastFetchTime,Action<string> statusUpdater)
+        public NuGetDownloadAsyncTask(INuGetSettings settings, DateTime lastFetchTime, Action<string> statusUpdater)
             : this(settings, new EmptyDependenciesContainer(settings.RemoteRepositoryUrl))
         {
             mLastFetchTime = lastFetchTime;
@@ -105,7 +112,7 @@ namespace Ishimotto.NuGet
         }
 
 
-        public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container,IAriaDownloader downloader)
+        public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container, IAriaDownloader downloader)
         {
             mLogger = LogManager.GetLogger(typeof(NuGetDownloadAsyncTask));
 
@@ -116,7 +123,7 @@ namespace Ishimotto.NuGet
             mDownloader = downloader;
         }
 
-     
+
 
         #endregion
 
@@ -223,6 +230,8 @@ namespace Ishimotto.NuGet
         {
             var dependencies = await mDependenciesContainer.GetDependenciesAsync(package, updateRepository: true).ConfigureAwait(false);
 
+            UpdateStatus();
+
             if (dependencies.Any())
             {
                 mLogger.InfoFormat("Adding Dependencies to download for {0}", package.ID);
@@ -241,7 +250,18 @@ namespace Ishimotto.NuGet
 
                 dependenciesSubject.OnCompleted();
 
-                 dependenciesSubject.LastOrDefault();
+                dependenciesSubject.LastOrDefault();
+
+            }
+        }
+
+        private void UpdateStatus()
+        {
+            var index = Interlocked.Increment(ref mPackageIndex);
+
+            if (index % UPDATE_RATE == 0)
+            {
+                mUpdateStatusAction(string.Format("Resolved {0} packages", index));
             }
         }
 

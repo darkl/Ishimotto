@@ -49,10 +49,7 @@ namespace Ishimotto.NuGet.Ui
                     
                 }
                 );
-
-
-
-
+            
         }
 
         public event EventHandler CanExecuteChanged;
