@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Input;
+using NuGet;
 
 namespace Ishimotto.NuGet.Ui
 {
-    class DownloadPakagesCommand : ICommand
+    public class DownloadPakagesCommand : ICommand
     {
 
         private IshimottoViewModel _viewModel;
@@ -19,18 +19,24 @@ namespace Ishimotto.NuGet.Ui
 
         public bool CanExecute(object parameter)
         {
-            var fetchFrom = (DateTime)parameter;
+            return true;
             
-            return fetchFrom.CompareTo(default(DateTime)) == 0;
         }
 
-        public async void Execute(object parameter)
+        public void Execute(object parameter)
         {
-            var nugetTask = new NuGetDownloadAsyncTask(_viewModel.DownloadInfoViewModel, _viewModel.DC);
 
-            await nugetTask.ExecuteAsync();
+            _viewModel.IsDownloadCommandEnabled = false;
+            
+            var nugetTask = new NuGetDownloadAsyncTask(_viewModel.DownloadInfoModel,_viewModel.FetchingDate);
+
+            nugetTask.ExecuteAsync().ContinueWith((t) => _viewModel.IsDownloadCommandEnabled = true);
+
+
         }
 
         public event EventHandler CanExecuteChanged;
+
+        
     }
 }

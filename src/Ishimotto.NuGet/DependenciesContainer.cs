@@ -127,46 +127,4 @@ namespace Ishimotto.NuGet
             return DependenciesRepostory.AddDepndenciesAsync(dtos);
         }
     }
-
-    public class NoRepositoryInfo : IDependenciesRepostoryInfo
-    {
-        public IDependenciesRepostory Build()
-        {
-            return new EmptyRepository();
-        }
-
-        public Type RepositoryType
-        {
-            get { return typeof (EmptyRepository); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public string[] Properties
-        {
-            get { return new string[0]; }
-            set { throw new NotImplementedException(); }
-        }
-    }
-
-    public class EmptyRepository : IDependenciesRepostory
-    {
-        public bool IsExist(PackageDto dependency)
-        {
-            return false;
-        }
-
-        public async Task AddDepndenciesAsync(IEnumerable<PackageDto> dependencies)
-        {
-        }
-
-        public async Task AddDependnecyAsync(PackageDto package)
-        {
-            return;
-        }
-
-        public bool ShouldDownload(PackageDependency dependency)
-        {
-            return true;
-        }
-    }
 }

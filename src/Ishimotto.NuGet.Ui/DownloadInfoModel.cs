@@ -9,11 +9,8 @@ using Ishimotto.NuGet.Ui.Annotations;
 
 namespace Ishimotto.NuGet.Ui
 {
-    class DownloadInfoViewModel : INotifyPropertyChanged, INuGetSettings
+    public class DownloadInfoModel : INotifyPropertyChanged, INuGetSettings
     {
-
-
-
 
         public string NuGetUrl { get; set; }
 
@@ -45,6 +42,11 @@ namespace Ishimotto.NuGet.Ui
         {
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public DownloadInfoModel()
+        {
+            Prerelase = Enumerable.Empty<string>();
         }
     }
 }

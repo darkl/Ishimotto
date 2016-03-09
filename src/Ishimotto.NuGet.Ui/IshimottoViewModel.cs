@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Ishimotto.NuGet.Ui.Annotations;
 
 namespace Ishimotto.NuGet.Ui
@@ -18,10 +20,10 @@ namespace Ishimotto.NuGet.Ui
 
         public DateTime FetchingDate
         {
-            get { return FetchingDate; }
+            get { return _fetchingDate; }
             set
             {
-                FetchingDate = value;
+                _fetchingDate = value;
                 OnPropertyChanged();
             }
         }
@@ -39,7 +41,6 @@ namespace Ishimotto.NuGet.Ui
         }
 
         private bool _includePreRelease;
-        public IDependenciesContainer DC;
 
         public bool IncludePreRelease
         {
@@ -58,7 +59,28 @@ namespace Ishimotto.NuGet.Ui
         }
 
 
-        public DownloadInfoViewModel DownloadInfoViewModel { get; set; }
+        private bool _isDownloadCommandEnabled;
+
+        public DownloadInfoModel DownloadInfoModel { get; private set; }
+
+        public bool IsDownloadCommandEnabled
+        {
+            get { return _isDownloadCommandEnabled && FetchingDate.CompareTo(default(DateTime)) >0; }
+            set { _isDownloadCommandEnabled = value; }
+        }
+
+        
+        public DownloadPakagesCommand DownloadCommand { get; set; }
+
+
+        public IshimottoViewModel(DownloadInfoModel info)
+        {
+            DownloadCommand = new DownloadPakagesCommand(this);
+
+            FetchingDate = DateTime.Now.AddDays(-18);
+
+            DownloadInfoModel = info;
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
