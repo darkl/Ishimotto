@@ -39,6 +39,7 @@ namespace Ishimotto.NuGet.Ui
         }
 
         private bool _includePreRelease;
+        public IDependenciesContainer DC;
 
         public bool IncludePreRelease
         {
@@ -56,6 +57,8 @@ namespace Ishimotto.NuGet.Ui
             get { return DateTime.Now; }
         }
 
+
+        public DownloadInfoViewModel DownloadInfoViewModel { get; set; }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

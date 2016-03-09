@@ -96,9 +96,6 @@ namespace Ishimotto.NuGet
         public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container,IAriaDownloader downloader)
         {
 
-            
-
-
             mLogger = LogManager.GetLogger(typeof(NuGetDownloadAsyncTask));
 
             mDependenciesContainer = container;
@@ -107,6 +104,8 @@ namespace Ishimotto.NuGet
 
             mDownloader = downloader;
         }
+
+        public NuGetDownloadAsyncTask(DateTime lastFetchTime, string downloadDirectory, string remoteRepotirotyUrl,IDependenciesRepostory repository):this( )
 
         #endregion
 

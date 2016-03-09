@@ -114,6 +114,7 @@
     <Compile Include="Dependencies\Repositories\MongoDepndenciesRepository.cs" />
     <Compile Include="IDependenciesContainer.cs" />
     <Compile Include="IDependenciesRepostoryInfo.cs" />
+    <Compile Include="IshimottoConfig.cs" />
     <Compile Include="NugetInformation.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetDownloadAsyncTask.cs" />
