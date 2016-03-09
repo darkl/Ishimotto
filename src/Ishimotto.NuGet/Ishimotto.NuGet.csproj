@@ -112,9 +112,11 @@
     <Compile Include="Dependencies\PackageDto.cs" />
     <Compile Include="Dependencies\PackageExtentions.cs" />
     <Compile Include="Dependencies\Repositories\MongoDepndenciesRepository.cs" />
+    <Compile Include="EmptyDependenciesContainer.cs" />
+    <Compile Include="EmptyRepository.cs" />
     <Compile Include="IDependenciesContainer.cs" />
     <Compile Include="IDependenciesRepostoryInfo.cs" />
-    <Compile Include="IshimottoConfig.cs" />
+    <Compile Include="NoRepositoryInfo.cs" />
     <Compile Include="NugetInformation.cs" />
     <Compile Include="NuGetDownloader.cs" />
     <Compile Include="NuGetDownloadAsyncTask.cs" />
