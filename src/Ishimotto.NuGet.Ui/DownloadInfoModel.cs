@@ -49,6 +49,7 @@ namespace Ishimotto.NuGet.Ui
         public DownloadInfoModel()
         {
             Prerelase = Enumerable.Empty<string>();
+            PackagesIds = Enumerable.Empty<string>();
         }
     }
 }
