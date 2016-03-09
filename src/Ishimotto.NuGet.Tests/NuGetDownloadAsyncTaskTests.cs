@@ -50,7 +50,7 @@ namespace Ishimotto.NuGet.Tests
             var task = new NuGetDownloadAsyncTask(mSettingsMock.Object, mDependenciesContainerMock.Object,mDownloader.Object);
             
             //Act
-            await task.ResolveDependnecies(source);
+            await task.ResolveDependnecies(source).ConfigureAwait(false);
 
             mDependenciesContainerMock.Verify(x => x.GetDependenciesAsync(It.IsAny<PackageDto>(), It.IsAny<bool>()), Times.Exactly(3));
 

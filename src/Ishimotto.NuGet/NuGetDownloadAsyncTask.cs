@@ -93,9 +93,15 @@ namespace Ishimotto.NuGet
         {
         }
 
+        public NuGetDownloadAsyncTask(INuGetSettings settings, DateTime lastFetchTime)
+            : this(settings, new EmptyDependenciesContainer(settings.RemoteRepositoryUrl))
+        {
+            mLastFetchTime = lastFetchTime;
+        }
+
+
         public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container,IAriaDownloader downloader)
         {
-
             mLogger = LogManager.GetLogger(typeof(NuGetDownloadAsyncTask));
 
             mDependenciesContainer = container;
@@ -105,7 +111,6 @@ namespace Ishimotto.NuGet
             mDownloader = downloader;
         }
 
-        public NuGetDownloadAsyncTask(DateTime lastFetchTime, string downloadDirectory, string remoteRepotirotyUrl,IDependenciesRepostory repository):this( )
 
         #endregion
 
@@ -147,7 +152,7 @@ namespace Ishimotto.NuGet
 
             packageBrodcaster.Complete();
 
-            await completion;
+            await completion.ConfigureAwait(false);
 
             mLogger.Debug("Finsih resolving packgaes Dependencies");
 
@@ -228,7 +233,7 @@ namespace Ishimotto.NuGet
 
                 dependenciesSubject.OnCompleted();
 
-                await dependenciesSubject.LastOrDefaultAsync();
+                 dependenciesSubject.LastOrDefault();
             }
         }
 

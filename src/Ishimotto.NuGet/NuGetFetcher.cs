@@ -64,9 +64,7 @@ namespace Ishimotto.NuGet
 
             var task =
                 Task<IList<V2FeedPackage>>.Run(() => packages.ToList());
-
-           
-           
+            
 
             bool finished =Task.WaitAll(new Task[] { task }, mTimeout);
 

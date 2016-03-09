@@ -107,7 +107,7 @@ namespace Ishimotto.Core
 
             try
             {
-                await client.DownloadFileTaskAsync(downloadLink, destination);
+                await client.DownloadFileTaskAsync(downloadLink, destination).ConfigureAwait(false);
                 pending.Succeeded = true;
             }
             catch (Exception ex)

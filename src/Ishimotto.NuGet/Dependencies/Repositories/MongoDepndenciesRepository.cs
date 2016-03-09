@@ -117,7 +117,7 @@ namespace Ishimotto.NuGet.Dependencies.Repositories
 
                 foreach (var dependency in dependencies)
                 {
-                    await AddDependnecyAsync(dependency);
+                    await AddDependnecyAsync(dependency).ConfigureAwait(false);
                 }
 
             });
