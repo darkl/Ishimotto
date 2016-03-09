@@ -27,6 +27,8 @@ namespace Ishimotto.NuGet.Ui
         public void Execute(object parameter)
         {
 
+            _viewModel.IsBusy = true;
+
             _viewModel.IsDownloadCommandEnabled = false;
             
             var nugetTask = new NuGetDownloadAsyncTask(_viewModel.DownloadInfoModel,_viewModel.FetchingDate,(status) => _viewModel.Status = status);
@@ -46,7 +48,8 @@ namespace Ishimotto.NuGet.Ui
                         _viewModel.Status = "Finsih downloading packages from " +
                                             _viewModel.FetchingDate.ToShortDateString();
                     }
-                    
+
+                    _viewModel.IsBusy = false;
                 }
                 );
             

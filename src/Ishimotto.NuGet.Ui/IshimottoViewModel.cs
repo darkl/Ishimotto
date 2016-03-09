@@ -87,6 +87,19 @@ namespace Ishimotto.NuGet.Ui
         }
 
 
+        private bool _isBusy;
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set
+            {
+                _isBusy = value; 
+                OnPropertyChanged();
+            }
+        }
+        
+
         
         public DownloadPakagesCommand DownloadCommand { get; set; }
 
@@ -102,6 +115,8 @@ namespace Ishimotto.NuGet.Ui
             IsDownloadCommandEnabled = true;
 
             Status = "Ready";
+
+            IsBusy = false;
         }
 
         [NotifyPropertyChangedInvocator]

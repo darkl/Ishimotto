@@ -41,6 +41,9 @@
       <HintPath>..\packages\Accordion.1.0.0\lib\Accordion.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="LoadingIndicators.WPF">
+      <HintPath>..\packages\LoadingIndicators.WPF.0.0.1\lib\LoadingIndicators.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="NuGet.Core, Version=2.8.60318.667, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Nuget.Core.2.8.5\lib\net40-Client\NuGet.Core.dll</HintPath>
