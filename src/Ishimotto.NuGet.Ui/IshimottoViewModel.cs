@@ -74,6 +74,19 @@ namespace Ishimotto.NuGet.Ui
             }
         }
 
+        private string _status;
+
+        public string Status
+        {
+            get { return _status; }
+            set
+            {
+                _status = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         
         public DownloadPakagesCommand DownloadCommand { get; set; }
 
@@ -87,6 +100,8 @@ namespace Ishimotto.NuGet.Ui
             DownloadInfoModel = info;
 
             IsDownloadCommandEnabled = true;
+
+            Status = "Ready";
         }
 
         [NotifyPropertyChangedInvocator]

@@ -26,6 +26,8 @@
             <RowDefinition Height="50"
                            x:Name="DownloadButtonPlaceHolder" />
             <RowDefinition Height="15" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
 
         <Label Content="Ishimotto" 
@@ -33,40 +35,44 @@
                Grid.Column="1"
                Grid.Row="1"
                Width="Auto"
-               Height="Auto"/>
+               Height="Auto" Margin="0,1,0,28" Grid.RowSpan="2"/>
 
         <Label Content="Fetch From:"
        Grid.Row="2"
-       Grid.Column="1" />
+       Grid.Column="1" Margin="0,2" Grid.RowSpan="2" />
         <DatePicker
             SelectedDate="{Binding FetchingDate,Mode=TwoWay,NotifyOnTargetUpdated=True}"
             Grid.Row="2"
             Grid.Column="2" 
             Text="Pick Date..."
             FirstDayOfWeek="Sunday"
-             DisplayDateEnd="{Binding MaxFetchingDate,Mode=OneWay}"/>
+             DisplayDateEnd="{Binding MaxFetchingDate,Mode=OneWay}" Margin="0,2" Grid.RowSpan="2"/>
 
         <Label Content="Packages Ids (use [,] delimiter):"
                Grid.Row="4"
                Grid.Column="1"
-               Grid.RowSpan="2"/>
+               Grid.RowSpan="3" Margin="0,4"/>
         <TextBox x:Name="PackagesIds"
                  Grid.Column="2"
                  Grid.Row="4"
-                 Text="{Binding PackagesIds, Mode=OneWayToSource}"/>
+                 Text="{Binding PackagesIds, Mode=OneWayToSource}" Margin="0,4,0,15" Grid.RowSpan="2"/>
         <CheckBox Content="Include Pre Release version"
                   Grid.Column="2"
                   Grid.Row="5"
-                  IsChecked="{Binding IncludePreRelease,Mode=TwoWay}" />
-        
-        
+                  IsChecked="{Binding IncludePreRelease,Mode=TwoWay}" Margin="0,5,0,4" Grid.RowSpan="2" />
+
+
         <Button Content="Download"
                 Grid.Row="7"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
                 Command="{Binding DownloadCommand}"
-                IsEnabled="{Binding IsDownloadCommandEnabled}" />
+                IsEnabled="{Binding IsDownloadCommandEnabled}" Margin="0,7" Grid.RowSpan="2" />
 
+        <Label Content="{Binding Path=Status}"
+               Background="Linen" 
+               Grid.Row="10"
+            Grid.ColumnSpan="4" />
 
     </Grid>
 </Window>

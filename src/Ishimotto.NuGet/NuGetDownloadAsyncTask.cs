@@ -51,6 +51,9 @@ namespace Ishimotto.NuGet
         /// </remarks>
         private IAriaDownloader mDownloader;
 
+
+        private Action<string> mUpdateStatusAction;
+
         #endregion
 
         #region Constants
@@ -88,15 +91,17 @@ namespace Ishimotto.NuGet
         }
 
 
-        public NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container): this(settings,container,new AriaDownloader(settings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
+        private NuGetDownloadAsyncTask(INuGetSettings settings, IDependenciesContainer container): this(settings,container,new AriaDownloader(settings.DownloadDirectory, true, 16, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aria.log"),
                                                 AriaSeverity.Error))
         {
+            mUpdateStatusAction = Console.WriteLine;
         }
 
-        public NuGetDownloadAsyncTask(INuGetSettings settings, DateTime lastFetchTime)
+        public NuGetDownloadAsyncTask(INuGetSettings settings, DateTime lastFetchTime,Action<string> statusUpdater)
             : this(settings, new EmptyDependenciesContainer(settings.RemoteRepositoryUrl))
         {
             mLastFetchTime = lastFetchTime;
+            mUpdateStatusAction = statusUpdater;
         }
 
 
@@ -111,6 +116,7 @@ namespace Ishimotto.NuGet
             mDownloader = downloader;
         }
 
+     
 
         #endregion
 
@@ -125,7 +131,7 @@ namespace Ishimotto.NuGet
             NuGetQuerier querier = new NuGetQuerier(mSettings.RemoteRepositoryUrl);
 
 
-            Console.WriteLine("Fetching Packages from: " + mLastFetchTime);
+            mUpdateStatusAction("Retrieving Packages from: " + mLastFetchTime);
 
             mLogger.Info("Quering NuGet to get packages inforamtion");
 
@@ -143,7 +149,7 @@ namespace Ishimotto.NuGet
             mLogger.Info("Resolving packgaes Dependencies");
 
 
-            Console.WriteLine("Resolving dependencies");
+            mUpdateStatusAction("Resolving dependencies");
 
             foreach (var packageDto in packages)
             {
@@ -156,11 +162,13 @@ namespace Ishimotto.NuGet
 
             mLogger.Debug("Finsih resolving packgaes Dependencies");
 
-            Console.WriteLine("Downloading packages");
+            mUpdateStatusAction("Downloading packages");
 
             mLogger.Info("Downloading packages");
 
             mDownloader.Download();
+
+            mUpdateStatusAction("Finish Download");
         }
 
         #endregion
