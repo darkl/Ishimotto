@@ -278,7 +278,7 @@ namespace Ishimotto.Core
 
             processStartInfo.UseShellExecute = false;
             processStartInfo.CreateNoWindow = true;
-            processStartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ARIA_EXE);
+            processStartInfo.FileName = Path.Combine("../../../ext/", ARIA_EXE);
 
             processStartInfo.Arguments = arguments;
             return processStartInfo;
