@@ -20,8 +20,14 @@ namespace Ishimotto.NuGet.Ui
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public IshimottoViewModel ViewModel { get;  set; }
+
         public MainWindow()
         {
+            ViewModel = new IshimottoViewModel();
+
+            DataContext = ViewModel;
             InitializeComponent();
         }
     }

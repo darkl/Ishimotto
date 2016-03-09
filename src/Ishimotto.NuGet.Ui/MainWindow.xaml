@@ -16,7 +16,7 @@
             <RowDefinition Height="30"
                    x:Name="FetchingDatePlaceHolder"/>
             <RowDefinition Height="5" />
-                           
+
             <RowDefinition Height="50"
                            x:Name="PackagesIdsPlaceHolder" />
             <RowDefinition Height="20"
@@ -38,10 +38,12 @@
        Grid.Row="2"
        Grid.Column="1" />
         <DatePicker
+            SelectedDate="{Binding FethcingDate}"
             Grid.Row="2"
             Grid.Column="2" 
             Text="Pick Date..."
-            FirstDayOfWeek="Sunday"/>
+            FirstDayOfWeek="Sunday"
+             DisplayDateEnd="{Binding MaxFetchingDate,Mode=OneWay}"/>
 
         <Label Content="Packages Ids (use [,] delimiter):"
                Grid.Row="4"
@@ -49,16 +51,18 @@
                Grid.RowSpan="2"/>
         <TextBox x:Name="PackagesIds"
                  Grid.Column="2"
-                 Grid.Row="4" />
-        <CheckBox Content="Include Pre Realse version"
+                 Grid.Row="4"
+                 Text="{Binding PackagesIds, Mode=OneWayToSource}"/>
+        <CheckBox Content="Include Pre Release version"
                   Grid.Column="2"
-                  Grid.Row="5"></CheckBox>
-        
+                  Grid.Row="5"
+                  IsChecked="{Binding IncludePreRealse}"></CheckBox>
+
         <Button Content="Download"
                 Grid.Row="7"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"></Button>
-        
-        
+
+
     </Grid>
 </Window>
